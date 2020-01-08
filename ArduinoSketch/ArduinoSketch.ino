@@ -40,7 +40,7 @@ unsigned int audioLevel = 0;
 int audioColorIndex = 0;
 const int levelsToSave = 15;
 unsigned int prevLevels[levelsToSave];
-int ticksSinceLastColorChange;
+int ticksSinceLastAudioPeak;
 int prevBrightness = 0;
 int maxBrightnessDelta = 10;
 int prevBrightnessDelta = 0;
@@ -129,7 +129,7 @@ void loop() {
 
     if (millis() - prevUpdate >= 1000 / 60) {
 
-      ticksSinceLastColorChange++;
+      ticksSinceLastAudioPeak++;
 
       for (int i = 1; i < levelsToSave; i++) {
         prevLevels[i - 1] = prevLevels[i];
@@ -154,14 +154,16 @@ void loop() {
       bool changedColor = false;
 
       if (((avgSecondChange < 0 && avgChange <= 10 && avgChange >= 0) ||
-           (avgChange >= 100 && ticksSinceLastColorChange >= 60)) &&
-          (ticksSinceLastColorChange >= 45 ||
+           (avgChange >= 100 && ticksSinceLastAudioPeak >= 60)) &&
+          (ticksSinceLastAudioPeak >= 45 ||
            prevMinValue < prevPeakValue - 200 ||
            prevMinValue < audioLevel - 200) &&
-          ticksSinceLastColorChange >= 20) {
-        audioColorIndex = (audioColorIndex + 1) % numAudioColors;
+          ticksSinceLastAudioPeak >= 20) {
+
+        if (ticksSinceLastAudioPeak >= 45)
+          audioColorIndex = (audioColorIndex + 1) % numAudioColors;
         changedColor = true;
-        ticksSinceLastColorChange = 0;
+        ticksSinceLastAudioPeak = 0;
         prevPeakValue = audioLevel;
         prevMinValue = 1000;
       }
@@ -174,7 +176,7 @@ void loop() {
         multiplier = 10;
 
       // int curBrightness = ((float)audioLevel / 1000 * 255);
-      int curBrightness = 60 - ticksSinceLastColorChange *
+      int curBrightness = 60 - ticksSinceLastAudioPeak *
                                    ((float)675 / (float)(audioLevel + 50));
       if (curBrightness > 60)
         curBrightness = 60;
