@@ -1,10 +1,14 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
+#include "ArduinoConnector.h"
 
 #define WM_TRAY_ICON_MSG (WM_USER + 1)
 
 namespace cta {
+
+	class LEDMode; // Forward declare to avoid circular includes
+
 	class ControllerApp {
 
 	public:
@@ -42,11 +46,35 @@ namespace cta {
 
 
 		/*
-		
+
 		Makes the main window visible.
 
 		*/
 		void showMainWindow();
+
+		/*
+
+		Returns the main font used for
+		drawing text to the window.
+
+		*/
+		sf::Font& getMainFont();
+
+		/*
+
+		Returns the instance of the main
+		arduino connection.
+
+		*/
+		ArduinoConnector* getArduinoConnector();
+
+		/*
+		
+		Change the current LED mode
+		to a new mode.
+		
+		*/
+		void setCurrentLEDMode(LEDMode* newMode);
 
 	private:
 		/*
@@ -93,11 +121,21 @@ namespace cta {
 
 		/*
 
-		Called every frame. Draw graphics to
-		the screen.
+		Called every frame if the window is
+		visible. Draw graphics to the screen.
 
 		*/
-		void draw();
+		void draw(int dt);
+
+
+		/*
+
+		Called every frame, even if the window
+		is not visible. Perform logic and update
+		LEDs
+
+		*/
+		void tick(int dt);
 
 		/*
 
@@ -128,6 +166,12 @@ namespace cta {
 
 		sf::RenderWindow mainWindow;
 		bool windowIsVisible = true;
+
+		cta::LEDMode* currentMode;
+
+		ArduinoConnector arduinoConnector;
+
+		sf::Font mainFont;
 
 	};
 }

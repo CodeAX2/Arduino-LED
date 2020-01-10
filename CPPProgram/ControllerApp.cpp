@@ -2,8 +2,22 @@
 #include "Utils.h"
 #include "resource.h"
 #include <strsafe.h>
+#include <SFML/System.hpp>
+#include "NoMode.h"
+#include "AllStaticColorMode.h"
 
-cta::ControllerApp::ControllerApp() {
+cta::ControllerApp::ControllerApp() : arduinoConnector("COM4") {
+
+	mainFont.loadFromFile("Resources/OpenSans-Regular.ttf");
+
+
+	arduinoConnector.connect();
+	currentMode = new NoMode(this);
+	currentMode->activate();
+
+	new AllStaticColorMode(this);
+	new NoMode(this);
+	new NoMode(this);
 
 }
 
@@ -107,7 +121,7 @@ void cta::ControllerApp::createShellIconData() {
 
 void cta::ControllerApp::createMainWindow() {
 	// Create the main SFML window
-	mainWindow.create(sf::VideoMode(1920, 720), "Arduino LED Confiurator");
+	mainWindow.create(sf::VideoMode(1280, 720), "Arduino LED Confiurator");
 	mainWindow.setFramerateLimit(120);
 
 	// Set the window's icon
@@ -116,6 +130,9 @@ void cta::ControllerApp::createMainWindow() {
 
 void cta::ControllerApp::beginEventRenderLoop() {
 
+
+	sf::Clock timer;
+	sf::Time prev = timer.getElapsedTime();
 	while (mainWindow.isOpen()) {
 
 		// Handle events from the icon in the tray
@@ -127,17 +144,37 @@ void cta::ControllerApp::beginEventRenderLoop() {
 
 		// Handle events relative to the main SFML window
 		sf::Event e;
-		while (mainWindow.pollEvent(e)) {
+		while (mainWindow.pollEvent(e) && windowIsVisible) {
 			if (e.type == sf::Event::Closed) {
 				mainWindow.setVisible(false);
 				windowIsVisible = false;
+			} else if (e.type == sf::Event::Resized) {
+				sf::Vector2f center;
+				sf::Vector2f size;
+
+				center.x = mainWindow.getSize().x / 2;
+				center.y = mainWindow.getSize().y / 2;
+
+				size = sf::Vector2f(mainWindow.getSize());
+
+				sf::View newView(center, size);
+				mainWindow.setView(newView);
+
+			} else {
+				currentMode->handleEvent(e);
 			}
 		}
+
+		sf::Time now = timer.getElapsedTime();
+		int dt = now.asMilliseconds() - prev.asMilliseconds();
+		prev = now;
+
+		tick(dt);
 
 		// Draw graphics to the window
 		if (windowIsVisible) {
 			mainWindow.clear();
-			draw();
+			draw(dt);
 			mainWindow.display();
 		}
 
@@ -156,60 +193,19 @@ void cta::ControllerApp::beginEventRenderLoop() {
 
 }
 
-void cta::ControllerApp::draw() {
+void cta::ControllerApp::tick(int dt) {
 
-	sf::Image gradientImage;
-	gradientImage.create(255, 255);
-	for (int i = 0; i < gradientImage.getSize().x; i++) {
-		for (int j = 0; j < gradientImage.getSize().y; j++) {
-
-			sf::Color color;
-			int imgSizeX = gradientImage.getSize().x;
-			double scale = 255.0 * 6 / (double)imgSizeX;
-
-			if (i <= imgSizeX / 6) {
-				color.r = 255;
-				color.g = i * scale;
-				color.b = 0;
-			} else if (i > imgSizeX / 6 && i <= imgSizeX / 3) {
-				color.r = 510 - i * scale;
-				color.g = 255;
-				color.b = 0;
-			} else if (i > imgSizeX / 3 && i <= imgSizeX / 2) {
-				color.r = 0;
-				color.g = 255;
-				color.b = i * scale - 510;
-			} else if (i > imgSizeX / 2 && i <= imgSizeX * 2 / 3) {
-				color.r = 0;
-				color.g = 1020 - i * scale;
-				color.b = 255;
-			} else if (i > imgSizeX * 2 / 3 && i <= imgSizeX * 5 / 6) {
-				color.r = i * scale - 1020;
-				color.g = 0;
-				color.b = 255;
-			} else {
-				color.r = 255;
-				color.g = 0;
-				color.b = 1530 - i * scale;
-			}
-
-			color.r = color.r + (255 - color.r) * (double)j / gradientImage.getSize().y;
-			color.g = color.g + (255 - color.g) * (double)j / gradientImage.getSize().y;
-			color.b = color.b + (255 - color.b) * (double)j / gradientImage.getSize().y;
-
-			gradientImage.setPixel(i, j, color);
-
-		}
-
-		sf::Texture t;
-		t.loadFromImage(gradientImage);
-
-		sf::RectangleShape shape;
-		shape.setSize(sf::Vector2f(t.getSize()));
-		shape.setTexture(&t);
-		mainWindow.draw(shape);
-
+	if (!arduinoConnector.isConnected()) {
+		arduinoConnector.connect();
 	}
+
+	currentMode->tick(dt);
+
+}
+
+void cta::ControllerApp::draw(int dt) {
+
+	currentMode->draw(dt);
 
 }
 
@@ -315,9 +311,24 @@ void cta::ControllerApp::readMailSlot() {
 void cta::ControllerApp::end() {
 	Shell_NotifyIconA(NIM_DELETE, &shellIconData);
 	CloseHandle(mutexHandle);
+	arduinoConnector.disconnect();
 }
 
 void cta::ControllerApp::showMainWindow() {
 	mainWindow.setVisible(true);
 	windowIsVisible = true;
+}
+
+sf::Font& cta::ControllerApp::getMainFont() {
+	return mainFont;
+}
+
+cta::ArduinoConnector* cta::ControllerApp::getArduinoConnector() {
+	return &arduinoConnector;
+}
+
+void cta::ControllerApp::setCurrentLEDMode(cta::LEDMode* newMode) {
+	currentMode->deActivate();
+	currentMode = newMode;
+	currentMode->activate();
 }
