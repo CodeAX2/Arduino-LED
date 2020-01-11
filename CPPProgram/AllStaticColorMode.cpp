@@ -1,6 +1,7 @@
 #include "AllStaticColorMode.h"
 #include <iostream>
 #include "LEDModeHandler.h"
+#include <sstream>
 
 const std::string cta::AllStaticColorMode::TYPE = "Static Color";
 
@@ -160,6 +161,140 @@ void cta::AllStaticColorMode::draw(int dt) {
 	darknessSelector.setFillColor(selectedColorDarkness);
 	darknessSelector.setPosition(darknessGradient.getPosition() + sf::Vector2f(selectedColorDarknessX - darknessSelector.getSize().x / 2, -5));
 	window->draw(darknessSelector);
+
+	// Draw the 4 text input boxes for hex, red, green, and blue
+	int yPos = darknessGradient.getPosition().y + darknessGradient.getSize().y + 20 * window->getView().getSize().y / 720;
+
+	sf::RectangleShape hexTextBox(sf::Vector2f(window->getView().getSize().x / 9.f, window->getView().getSize().y / 20));
+	hexTextBox.setPosition(sf::Vector2f(colorPalette.getPosition().x, yPos));
+	hexTextBox.setFillColor(sf::Color(16, 19, 20));
+	hexTextBox.setOutlineThickness(2);
+	hexTextBox.setOutlineColor(sf::Color::Black);
+	window->draw(hexTextBox);
+
+	sf::Text hexText;
+
+	int colorInt = selectedColorDarkness.toInteger() >> 8;
+	std::stringstream colorSStream;
+	colorSStream << std::hex;
+	colorSStream << colorInt;
+	std::string hexTextString = colorSStream.str();
+
+	while (hexTextString.length() != 6) {
+		// Add leading 0s
+		hexTextString = "0" + hexTextString;
+	}
+
+
+	hexText.setFont(app->getMainFont());
+	hexText.setString(hexTextString);
+	hexText.setFillColor(sf::Color::White);
+	hexText.setCharacterSize(24 * window->getView().getSize().y / 720);
+
+	int hexTextOffsetX = hexText.getGlobalBounds().left - hexText.getPosition().x;
+	int hexTextOffsetY = hexText.getGlobalBounds().top - hexText.getPosition().y;
+	sf::Vector2f hexTextOffset(-hexTextOffsetX, -hexTextOffsetY);
+
+	hexText.setPosition(
+		hexTextBox.getPosition() + hexTextOffset +
+		sf::Vector2f(hexTextBox.getSize()) / 2.f -
+		sf::Vector2f(hexText.getGlobalBounds().width / 2, hexText.getGlobalBounds().height / 2)
+	);
+
+	window->draw(hexText);
+
+	sf::RectangleShape redTextBox(sf::Vector2f(window->getView().getSize().x / 18.f, window->getView().getSize().y / 20));
+	redTextBox.setPosition(sf::Vector2f(colorPalette.getPosition().x + redTextBox.getSize().x * 3, yPos));
+	redTextBox.setFillColor(sf::Color(16, 19, 20));
+	redTextBox.setOutlineThickness(2);
+	redTextBox.setOutlineColor(sf::Color::Black);
+	window->draw(redTextBox);
+
+	sf::Text redText;
+
+	colorSStream = std::stringstream();
+	colorSStream << (colorInt >> 16);
+	std::string redTextString = colorSStream.str();
+
+
+	redText.setFont(app->getMainFont());
+	redText.setString(redTextString);
+	redText.setFillColor(sf::Color::White);
+	redText.setCharacterSize(24 * window->getView().getSize().y / 720);
+
+	int redTextOffsetX = redText.getGlobalBounds().left - redText.getPosition().x;
+	int redTextOffsetY = redText.getGlobalBounds().top - redText.getPosition().y;
+	sf::Vector2f redTextOffset(-redTextOffsetX, -redTextOffsetY);
+
+	redText.setPosition(
+		redTextBox.getPosition() + redTextOffset +
+		sf::Vector2f(redTextBox.getSize()) / 2.f -
+		sf::Vector2f(redText.getGlobalBounds().width / 2, redText.getGlobalBounds().height / 2)
+	);
+
+	window->draw(redText);
+
+	sf::RectangleShape greenTextBox(sf::Vector2f(window->getView().getSize().x / 18.f, window->getView().getSize().y / 20));
+	greenTextBox.setPosition(sf::Vector2f(colorPalette.getPosition().x + greenTextBox.getSize().x * 4, yPos));
+	greenTextBox.setFillColor(sf::Color(16, 19, 20));
+	greenTextBox.setOutlineThickness(2);
+	greenTextBox.setOutlineColor(sf::Color::Black);
+	window->draw(greenTextBox);
+
+	sf::Text greenText;
+
+	colorSStream = std::stringstream();
+	colorSStream << (int)((unsigned char)(colorInt >> 8));
+	std::string greenTextString = colorSStream.str();
+
+
+	greenText.setFont(app->getMainFont());
+	greenText.setString(greenTextString);
+	greenText.setFillColor(sf::Color::White);
+	greenText.setCharacterSize(24 * window->getView().getSize().y / 720);
+
+	int greenTextOffsetX = greenText.getGlobalBounds().left - greenText.getPosition().x;
+	int greenTextOffsetY = greenText.getGlobalBounds().top - greenText.getPosition().y;
+	sf::Vector2f greenTextOffset(-greenTextOffsetX, -greenTextOffsetY);
+
+	greenText.setPosition(
+		greenTextBox.getPosition() + greenTextOffset +
+		sf::Vector2f(greenTextBox.getSize()) / 2.f -
+		sf::Vector2f(greenText.getGlobalBounds().width / 2, greenText.getGlobalBounds().height / 2)
+	);
+
+	window->draw(greenText);
+
+	sf::RectangleShape blueTextBox(sf::Vector2f(window->getView().getSize().x / 18.f, window->getView().getSize().y / 20));
+	blueTextBox.setPosition(sf::Vector2f(colorPalette.getPosition().x + blueTextBox.getSize().x * 5, yPos));
+	blueTextBox.setFillColor(sf::Color(16, 19, 20));
+	blueTextBox.setOutlineThickness(2);
+	blueTextBox.setOutlineColor(sf::Color::Black);
+	window->draw(blueTextBox);
+
+	sf::Text blueText;
+
+	colorSStream = std::stringstream();
+	colorSStream << (int)((unsigned char)(colorInt));
+	std::string blueTextString = colorSStream.str();
+
+
+	blueText.setFont(app->getMainFont());
+	blueText.setString(blueTextString);
+	blueText.setFillColor(sf::Color::White);
+	blueText.setCharacterSize(24 * window->getView().getSize().y / 720);
+
+	int blueTextOffsetX = blueText.getGlobalBounds().left - blueText.getPosition().x;
+	int blueTextOffsetY = blueText.getGlobalBounds().top - blueText.getPosition().y;
+	sf::Vector2f blueTextOffset(-blueTextOffsetX, -blueTextOffsetY);
+
+	blueText.setPosition(
+		blueTextBox.getPosition() + blueTextOffset +
+		sf::Vector2f(blueTextBox.getSize()) / 2.f -
+		sf::Vector2f(blueText.getGlobalBounds().width / 2, blueText.getGlobalBounds().height / 2)
+	);
+
+	window->draw(blueText);
 
 }
 
