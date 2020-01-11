@@ -57,6 +57,8 @@ void cta::NoMode::draw(int dt) {
 
 	}
 
+	// Draw the arduino status
+
 	sf::Text arduinoStatusTitle;
 	arduinoStatusTitle.setFont(app->getMainFont());
 

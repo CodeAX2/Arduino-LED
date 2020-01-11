@@ -121,7 +121,15 @@ void cta::ControllerApp::createShellIconData() {
 
 void cta::ControllerApp::createMainWindow() {
 	// Create the main SFML window
-	mainWindow.create(sf::VideoMode(1280, 720), "Arduino LED Confiurator");
+
+	sf::ContextSettings settings;
+	settings.depthBits = 24;
+	settings.stencilBits = 8;
+	settings.antialiasingLevel = 8;
+	settings.majorVersion = 4;
+	settings.minorVersion = 4;
+
+	mainWindow.create(sf::VideoMode(1280, 720), "Arduino LED Confiurator", sf::Style::Close | sf::Style::Resize | sf::Style::Titlebar, settings);
 	mainWindow.setFramerateLimit(120);
 
 	// Set the window's icon
@@ -149,6 +157,22 @@ void cta::ControllerApp::beginEventRenderLoop() {
 				mainWindow.setVisible(false);
 				windowIsVisible = false;
 			} else if (e.type == sf::Event::Resized) {
+
+				sf::Vector2u newSize = mainWindow.getSize();
+				bool smallerThanMinimumSize = false;
+				if (mainWindow.getSize().x < 600) {
+					newSize.x = 600;
+					smallerThanMinimumSize = true;
+				}
+
+				if (mainWindow.getSize().y < 300) {
+					newSize.y = 300;
+					smallerThanMinimumSize = true;
+				}
+
+				if (smallerThanMinimumSize)
+					mainWindow.setSize(newSize);
+
 				sf::Vector2f center;
 				sf::Vector2f size;
 
@@ -156,6 +180,10 @@ void cta::ControllerApp::beginEventRenderLoop() {
 				center.y = mainWindow.getSize().y / 2;
 
 				size = sf::Vector2f(mainWindow.getSize());
+
+				currentMode->handleEvent(e);
+				// The current mode can use the view
+				// as the old window size
 
 				sf::View newView(center, size);
 				mainWindow.setView(newView);
