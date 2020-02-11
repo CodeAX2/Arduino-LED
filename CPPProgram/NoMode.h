@@ -62,19 +62,6 @@ namespace cta {
 		void deActivate() override;
 
 
-	private:
-		/*
-
-		Mouse position, relative to the
-		view, not the window.
-
-		*/
-		int mouseX, mouseY;
-		bool mouseIsInWindow;
-
-		std::vector<bool> mouseIsHovering;
-
-
 
 	};
 }

@@ -144,11 +144,24 @@ void cta::ControllerApp::createMainWindow() {
 
 void cta::ControllerApp::setupMainWindowGUI() {
 
-	tgui::Button::Ptr button = tgui::Button::create();
-	button->setSize("30%", "20%");
-	button->setText("Click Me!");
-	button->setTextSize(24);
-	mainWindowGUI.add(button, "testButton");
+	tgui::Button::Ptr staticColorButton = tgui::Button::create();
+	staticColorButton->setSize("30%", "20%");
+	staticColorButton->setText("Static Color");
+	staticColorButton->setTextSize(24);
+	mainWindowGUI.add(staticColorButton, "staticColorButton");
+
+	tgui::Panel::Ptr noModePanel = tgui::Panel::create();
+	noModePanel->setSize("70%", "100%");
+	noModePanel->setPosition("30%", "0%");
+	mainWindowGUI.add(noModePanel, "noModePanel");
+
+	tgui::Label::Ptr arduinoStatusLabel = tgui::Label::create();
+	arduinoStatusLabel->setSize("75%", "100%");
+	arduinoStatusLabel->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
+	arduinoStatusLabel->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+	arduinoStatusLabel->setTextSize(64);
+	arduinoStatusLabel->setPosition("(parent.size - size) / 2");
+	noModePanel->add(arduinoStatusLabel, "arduinoStatusLabel");
 
 
 }
@@ -238,6 +251,16 @@ void cta::ControllerApp::tick(int dt) {
 	if (!arduinoConnector.isConnected()) {
 		arduinoConnector.connect();
 	}
+
+	tgui::Label::Ptr arduinoStatusLabel =
+		mainWindowGUI.get<tgui::Panel>("noModePanel")->get<tgui::Label>("arduinoStatusLabel");
+
+	std::string arduinoStatusText = "Arduino is not connected";
+	if (arduinoConnector.isConnected()) {
+		arduinoStatusText = "Arduino is connected";
+	}
+
+	arduinoStatusLabel->setText(arduinoStatusText);
 
 }
 
