@@ -152,12 +152,8 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AllStaticColorMode.h" />
     <ClInclude Include="ArduinoConnector.h" />
     <ClInclude Include="ControllerApp.h" />
-    <ClInclude Include="LEDMode.h" />
-    <ClInclude Include="LEDModeHandler.h" />
-    <ClInclude Include="NoMode.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
