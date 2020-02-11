@@ -24,19 +24,7 @@
     <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LEDMode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NoMode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LEDModeHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ArduinoConnector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AllStaticColorMode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

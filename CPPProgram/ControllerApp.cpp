@@ -5,19 +5,21 @@
 #include <SFML/System.hpp>
 #include "NoMode.h"
 #include "AllStaticColorMode.h"
+#include <TGUI/Gui.hpp>
 
 cta::ControllerApp::ControllerApp() : arduinoConnector("COM4") {
 
+	eventWindowHandle = NULL;
+	icon = NULL;
+	mailSlotHandle = NULL;
+	mutexHandle = NULL;
+	shellIconData = {};
+	eventWindowHandle = NULL;
+	icon = NULL;
+
 	mainFont.loadFromFile("Resources/OpenSans-Regular.ttf");
 
-
 	arduinoConnector.connect();
-	currentMode = new NoMode(this);
-	currentMode->activate();
-
-	new AllStaticColorMode(this);
-	new NoMode(this);
-	new NoMode(this);
 
 }
 
@@ -60,6 +62,7 @@ void cta::ControllerApp::begin() {
 	createEventWindow();
 	createShellIconData();
 	createMainWindow();
+	setupMainWindowGUI();
 	beginEventRenderLoop();
 }
 
@@ -130,14 +133,27 @@ void cta::ControllerApp::createMainWindow() {
 	settings.minorVersion = 4;
 
 	mainWindow.create(sf::VideoMode(1280, 720), "Arduino LED Confiurator", sf::Style::Close | sf::Style::Resize | sf::Style::Titlebar, settings);
-	mainWindow.setFramerateLimit(120);
+	mainWindow.setFramerateLimit(60);
+
+	// Enable TGUI on the main window
+	mainWindowGUI.setTarget(mainWindow);
 
 	// Set the window's icon
 	SendMessage(mainWindow.getSystemHandle(), WM_SETICON, ICON_BIG, (LPARAM)icon);
 }
 
-void cta::ControllerApp::beginEventRenderLoop() {
+void cta::ControllerApp::setupMainWindowGUI() {
 
+	tgui::Button::Ptr button = tgui::Button::create();
+	button->setSize("30%", "20%");
+	button->setText("Click Me!");
+	button->setTextSize(24);
+	mainWindowGUI.add(button, "testButton");
+
+
+}
+
+void cta::ControllerApp::beginEventRenderLoop() {
 
 	sf::Clock timer;
 	sf::Time prev = timer.getElapsedTime();
@@ -176,20 +192,16 @@ void cta::ControllerApp::beginEventRenderLoop() {
 				sf::Vector2f center;
 				sf::Vector2f size;
 
-				center.x = mainWindow.getSize().x / 2;
-				center.y = mainWindow.getSize().y / 2;
+				center.x = mainWindow.getSize().x / 2.f;
+				center.y = mainWindow.getSize().y / 2.f;
 
 				size = sf::Vector2f(mainWindow.getSize());
-
-				currentMode->handleEvent(e);
-				// The current mode can use the view
-				// as the old window size
 
 				sf::View newView(center, size);
 				mainWindow.setView(newView);
 
 			} else {
-				currentMode->handleEvent(e);
+				mainWindowGUI.handleEvent(e);
 			}
 		}
 
@@ -227,13 +239,11 @@ void cta::ControllerApp::tick(int dt) {
 		arduinoConnector.connect();
 	}
 
-	currentMode->tick(dt);
-
 }
 
 void cta::ControllerApp::draw(int dt) {
 
-	currentMode->draw(dt);
+	mainWindowGUI.draw();
 
 }
 
@@ -353,10 +363,4 @@ sf::Font& cta::ControllerApp::getMainFont() {
 
 cta::ArduinoConnector* cta::ControllerApp::getArduinoConnector() {
 	return &arduinoConnector;
-}
-
-void cta::ControllerApp::setCurrentLEDMode(cta::LEDMode* newMode) {
-	currentMode->deActivate();
-	currentMode = newMode;
-	currentMode->activate();
 }

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
 #include "ArduinoConnector.h"
+#include <TGUI/TGUI.hpp>
 
 #define WM_TRAY_ICON_MSG (WM_USER + 1)
 
@@ -68,14 +69,6 @@ namespace cta {
 		*/
 		ArduinoConnector* getArduinoConnector();
 
-		/*
-		
-		Change the current LED mode
-		to a new mode.
-		
-		*/
-		void setCurrentLEDMode(LEDMode* newMode);
-
 	private:
 		/*
 
@@ -109,6 +102,14 @@ namespace cta {
 
 		*/
 		void createMainWindow();
+
+		/*
+		
+		Creates all of the GUI widgets 
+		within the main window.
+		
+		*/
+		void setupMainWindowGUI();
 
 		/*
 
@@ -166,8 +167,7 @@ namespace cta {
 
 		sf::RenderWindow mainWindow;
 		bool windowIsVisible = true;
-
-		cta::LEDMode* currentMode;
+		tgui::Gui mainWindowGUI;
 
 		ArduinoConnector arduinoConnector;
 
@@ -175,4 +175,3 @@ namespace cta {
 
 	};
 }
-
