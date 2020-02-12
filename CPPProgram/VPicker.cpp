@@ -1,5 +1,6 @@
 #include "VPicker.h"
 #include <iostream>
+#include <iomanip>
 
 cta::VPicker::VPicker() {
 
@@ -83,6 +84,36 @@ void cta::VPicker::updateFinalColor() {
 	newSelectedColor.b *= selectedColorX / getSize().x;
 
 	finalColor = newSelectedColor;
+
+	// Update the text boxes
+	tgui::EditBox::Ptr hexTextBox = getParent()->get<tgui::EditBox>("hexTextbox");
+	std::stringstream hexSS;
+	hexSS << "#";
+	hexSS << std::hex << std::setfill('0') << std::setw(2);
+	hexSS << (int)finalColor.r << std::setfill('0') << std::setw(2);
+	hexSS << (int)finalColor.g << std::setfill('0') << std::setw(2);
+	hexSS << (int)finalColor.b;
+	hexTextBox->setText(hexSS.str());
+	hexTextBox->setCaretPosition(0);
+
+	tgui::EditBox::Ptr rTextBox = getParent()->get<tgui::EditBox>("rTextbox");
+	std::stringstream rSS;
+	rSS << (int)finalColor.r;
+	rTextBox->setText(rSS.str());
+	rTextBox->setCaretPosition(0);
+
+	tgui::EditBox::Ptr gTextBox = getParent()->get<tgui::EditBox>("gTextbox");
+	std::stringstream gSS;
+	gSS << (int)finalColor.g;
+	gTextBox->setText(gSS.str());
+	gTextBox->setCaretPosition(0);
+
+	tgui::EditBox::Ptr bTextBox = getParent()->get<tgui::EditBox>("bTextbox");
+	std::stringstream bSS;
+	bSS << (int)finalColor.b;
+	bTextBox->setText(bSS.str());
+	bTextBox->setCaretPosition(0);
+
 }
 
 void cta::VPicker::setHSPicker(cta::HSPicker::Ptr hsPicker) {
