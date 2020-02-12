@@ -86,7 +86,7 @@ void cta::VPicker::updateFinalColor() {
 	finalColor = newSelectedColor;
 
 	// Update the text boxes
-	tgui::EditBox::Ptr hexTextBox = getParent()->get<tgui::EditBox>("hexTextbox");
+	tgui::EditBox::Ptr hexTextBox = getParent()->get<tgui::EditBox>("hexEditBox");
 	std::stringstream hexSS;
 	hexSS << "#";
 	hexSS << std::hex << std::setfill('0') << std::setw(2);
@@ -96,19 +96,19 @@ void cta::VPicker::updateFinalColor() {
 	hexTextBox->setText(hexSS.str());
 	hexTextBox->setCaretPosition(0);
 
-	tgui::EditBox::Ptr rTextBox = getParent()->get<tgui::EditBox>("rTextbox");
+	tgui::EditBox::Ptr rTextBox = getParent()->get<tgui::EditBox>("redEditBox");
 	std::stringstream rSS;
 	rSS << (int)finalColor.r;
 	rTextBox->setText(rSS.str());
 	rTextBox->setCaretPosition(0);
 
-	tgui::EditBox::Ptr gTextBox = getParent()->get<tgui::EditBox>("gTextbox");
+	tgui::EditBox::Ptr gTextBox = getParent()->get<tgui::EditBox>("greenEditBox");
 	std::stringstream gSS;
 	gSS << (int)finalColor.g;
 	gTextBox->setText(gSS.str());
 	gTextBox->setCaretPosition(0);
 
-	tgui::EditBox::Ptr bTextBox = getParent()->get<tgui::EditBox>("bTextbox");
+	tgui::EditBox::Ptr bTextBox = getParent()->get<tgui::EditBox>("blueEditBox");
 	std::stringstream bSS;
 	bSS << (int)finalColor.b;
 	bTextBox->setText(bSS.str());
@@ -119,4 +119,8 @@ void cta::VPicker::updateFinalColor() {
 void cta::VPicker::setHSPicker(cta::HSPicker::Ptr hsPicker) {
 	this->hsPicker = hsPicker;
 	hsPicker->setVPicker(this);
+}
+
+sf::Color cta::VPicker::getFinalColor() {
+	return finalColor;
 }

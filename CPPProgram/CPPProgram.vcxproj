@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArduinoConnector.cpp" />
+    <ClCompile Include="ColorPickerModule.cpp" />
     <ClCompile Include="HSPicker.cpp" />
     <ClCompile Include="ControllerApp.cpp" />
     <ClCompile Include="LEDMode.cpp" />
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArduinoConnector.h" />
+    <ClInclude Include="ColorPickerModule.h" />
     <ClInclude Include="HSPicker.h" />
     <ClInclude Include="ControllerApp.h" />
     <ClInclude Include="LEDMode.h" />

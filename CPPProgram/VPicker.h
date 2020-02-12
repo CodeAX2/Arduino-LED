@@ -33,11 +33,42 @@ namespace cta {
 		*/
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
+		/*
+		
+		Override of the mouseMoved event function
+		to allow for moving the slidebar to
+		select the value.
+		
+		*/
 		void mouseMoved(tgui::Vector2f pos) override;
 
+		/*
+		
+		Sets this value slider's repsective
+		hue/saturation picker. Implicitly
+		sets the hue/saturation picker's
+		respective value slider to this.
+		
+		*/
 		void setHSPicker(cta::HSPicker::Ptr hsPicker);
 
+		/*
+		
+		Update the final color and the
+		text boxes based on a change in
+		either the hue/saturation picker
+		or in the value slider.
+		
+		*/
 		void updateFinalColor();
+
+		/*
+		
+		Returns the final color that
+		is currently selected.
+		
+		*/
+		sf::Color getFinalColor();
 
 	private:
 
