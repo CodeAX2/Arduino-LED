@@ -6,6 +6,7 @@
 #include "NoMode.h"
 #include "AllStaticColorMode.h"
 #include <TGUI/Gui.hpp>
+#include "LEDModeHandler.h"
 
 cta::ControllerApp::ControllerApp() : arduinoConnector("COM4") {
 
@@ -64,10 +65,15 @@ void cta::ControllerApp::begin() {
 	createMainWindow();
 	setupMainWindowGUI();
 	beginEventRenderLoop();
+
 }
 
 sf::RenderWindow* cta::ControllerApp::getMainWindowPointer() {
 	return &mainWindow;
+}
+
+tgui::Gui* cta::ControllerApp::getWindowGUIPointer() {
+	return &mainWindowGUI;
 }
 
 void cta::ControllerApp::claimMailSlotHandle() {
@@ -123,7 +129,7 @@ void cta::ControllerApp::createShellIconData() {
 }
 
 void cta::ControllerApp::createMainWindow() {
-	// Create the main SFML window
+	// Create the main SFML window and GUI
 
 	sf::ContextSettings settings;
 	settings.depthBits = 24;
@@ -132,7 +138,7 @@ void cta::ControllerApp::createMainWindow() {
 	settings.majorVersion = 4;
 	settings.minorVersion = 4;
 
-	mainWindow.create(sf::VideoMode(1280, 720), "Arduino LED Confiurator", sf::Style::Close | sf::Style::Resize | sf::Style::Titlebar, settings);
+	mainWindow.create(sf::VideoMode(1280, 720), "Arduino LED Confiurator", sf::Style::Close | sf::Style::Titlebar, settings);
 	mainWindow.setFramerateLimit(60);
 
 	// Enable TGUI on the main window
@@ -148,21 +154,15 @@ void cta::ControllerApp::setupMainWindowGUI() {
 	staticColorButton->setSize("30%", "20%");
 	staticColorButton->setText("Static Color");
 	staticColorButton->setTextSize(24);
+	staticColorButton->connect("pressed", [&]() {
+		currentMode = cta::LEDModeHandler::getModeByType("None");
+		}
+	);
+
 	mainWindowGUI.add(staticColorButton, "staticColorButton");
 
-	tgui::Panel::Ptr noModePanel = tgui::Panel::create();
-	noModePanel->setSize("70%", "100%");
-	noModePanel->setPosition("30%", "0%");
-	mainWindowGUI.add(noModePanel, "noModePanel");
-
-	tgui::Label::Ptr arduinoStatusLabel = tgui::Label::create();
-	arduinoStatusLabel->setSize("75%", "100%");
-	arduinoStatusLabel->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	arduinoStatusLabel->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	arduinoStatusLabel->setTextSize(64);
-	arduinoStatusLabel->setPosition("(parent.size - size) / 2");
-	noModePanel->add(arduinoStatusLabel, "arduinoStatusLabel");
-
+	// Create the LEDModes
+	currentMode = new NoMode(this);
 
 }
 
@@ -252,15 +252,7 @@ void cta::ControllerApp::tick(int dt) {
 		arduinoConnector.connect();
 	}
 
-	tgui::Label::Ptr arduinoStatusLabel =
-		mainWindowGUI.get<tgui::Panel>("noModePanel")->get<tgui::Label>("arduinoStatusLabel");
-
-	std::string arduinoStatusText = "Arduino is not connected";
-	if (arduinoConnector.isConnected()) {
-		arduinoStatusText = "Arduino is connected";
-	}
-
-	arduinoStatusLabel->setText(arduinoStatusText);
+	currentMode->tick(dt);
 
 }
 

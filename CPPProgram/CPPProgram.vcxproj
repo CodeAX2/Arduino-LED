@@ -147,21 +147,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArduinoConnector.cpp" />
+    <ClCompile Include="HSPicker.cpp" />
     <ClCompile Include="ControllerApp.cpp" />
     <ClCompile Include="LEDMode.cpp" />
     <ClCompile Include="LEDModeHandler.cpp" />
     <ClCompile Include="NoMode.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="VPicker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArduinoConnector.h" />
+    <ClInclude Include="HSPicker.h" />
     <ClInclude Include="ControllerApp.h" />
     <ClInclude Include="LEDMode.h" />
     <ClInclude Include="LEDModeHandler.h" />
     <ClInclude Include="NoMode.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="VPicker.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CPPProgram.rc" />

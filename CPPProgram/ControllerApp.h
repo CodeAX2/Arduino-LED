@@ -45,6 +45,13 @@ namespace cta {
 		*/
 		sf::RenderWindow* getMainWindowPointer();
 
+		/*
+		
+		Returns a pointer to the gui associated
+		with the main window.
+		
+		*/
+		tgui::Gui* getWindowGUIPointer();
 
 		/*
 
@@ -168,6 +175,8 @@ namespace cta {
 		sf::RenderWindow mainWindow;
 		bool windowIsVisible = true;
 		tgui::Gui mainWindowGUI;
+
+		cta::LEDMode* currentMode;
 
 		ArduinoConnector arduinoConnector;
 

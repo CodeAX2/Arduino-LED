@@ -61,6 +61,10 @@ namespace cta {
 		*/
 		void deActivate() override;
 
+	protected:
+		tgui::Panel::Ptr noModePanel;
+		tgui::Label::Ptr arduinoStatusLabel;
+
 
 
 	};
