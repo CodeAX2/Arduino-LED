@@ -182,5 +182,7 @@ namespace cta {
 
 		sf::Font mainFont;
 
+		sf::Thread* restartThread;
+
 	};
 }

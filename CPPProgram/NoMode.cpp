@@ -18,10 +18,6 @@ cta::NoMode::NoMode(cta::ControllerApp* app) :
 
 	windowGui->add(noModePanel, "noModePanel");
 
-	cta::ColorPickerModule cpm(noModePanel);
-
-	return;
-
 	arduinoStatusLabel = tgui::Label::create();
 	arduinoStatusLabel->setSize("75%", "100%");
 	arduinoStatusLabel->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
@@ -31,6 +27,7 @@ cta::NoMode::NoMode(cta::ControllerApp* app) :
 
 	noModePanel->add(arduinoStatusLabel, "arduinoStatusLabel");
 
+	this->deActivate();
 
 }
 
@@ -40,13 +37,13 @@ void cta::NoMode::draw(int dt) {
 }
 
 void cta::NoMode::tick(int dt) {
-
+ 
 	std::string arduinoStatusText = "Arduino is not connected";
 	if (app->getArduinoConnector()->isConnected()) {
 		arduinoStatusText = "Arduino is connected";
 	}
 
-	//arduinoStatusLabel->setText(arduinoStatusText);
+	arduinoStatusLabel->setText(arduinoStatusText);
 
 }
 

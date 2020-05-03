@@ -54,6 +54,8 @@ void setup() {
   prevUpdate = millis();
   Serial.begin(9600);
 
+  Serial.print('j');
+
   byte numStartupBytes = EEPROM.read(0);
 
   if (numStartupBytes == 0 || numStartupBytes > 64) {

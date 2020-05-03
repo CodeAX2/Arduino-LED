@@ -7,6 +7,9 @@
 #include "AllStaticColorMode.h"
 #include <TGUI/Gui.hpp>
 #include "LEDModeHandler.h"
+#include "AllStaticMode.h"
+#include "SplatoonMode.h"
+#include "ArduinoConnector.h"
 
 cta::ControllerApp::ControllerApp() : arduinoConnector("COM4") {
 
@@ -21,6 +24,10 @@ cta::ControllerApp::ControllerApp() : arduinoConnector("COM4") {
 	mainFont.loadFromFile("Resources/OpenSans-Regular.ttf");
 
 	arduinoConnector.connect();
+
+	restartThread = new sf::Thread([&]() {
+		arduinoConnector.restart();
+		});
 
 }
 
@@ -155,14 +162,51 @@ void cta::ControllerApp::setupMainWindowGUI() {
 	staticColorButton->setText("Static Color");
 	staticColorButton->setTextSize(24);
 	staticColorButton->connect("pressed", [&]() {
-		currentMode = cta::LEDModeHandler::getModeByType("None");
+		currentMode->deActivate();
+		currentMode = cta::LEDModeHandler::getModeByType("AllStatic");
+		currentMode->activate();
 		}
 	);
 
 	mainWindowGUI.add(staticColorButton, "staticColorButton");
 
+
+	tgui::Button::Ptr splatoonButton = tgui::Button::create();
+	splatoonButton->setSize("30%", "20%");
+	splatoonButton->setText("Splatoon");
+	splatoonButton->setTextSize(24);
+	splatoonButton->setPosition(0, "20%");
+	splatoonButton->connect("pressed", [&]() {
+		currentMode->deActivate();
+		currentMode = cta::LEDModeHandler::getModeByType("Splatoon");
+		currentMode->activate();
+		}
+	);
+
+	mainWindowGUI.add(splatoonButton, "splatoonButton");
+
+
+	tgui::Button::Ptr restartButton = tgui::Button::create();
+	restartButton->setSize("30%", "20%");
+	restartButton->setText("Restart Arduino");
+	restartButton->setTextSize(24);
+	restartButton->setPosition(0, "40%");
+	restartButton->connect("pressed", [&]() {
+		restartThread->wait();
+		arduinoConnector.disconnect();
+		restartThread->launch();
+		}
+	);
+
+	mainWindowGUI.add(restartButton, "restartButton");
+
 	// Create the LEDModes
-	currentMode = new NoMode(this);
+	new NoMode(this);
+	new AllStaticMode(this);
+	new SplatoonMode(this);
+
+	currentMode = cta::LEDModeHandler::getModeByType("None");
+	currentMode->activate();
 
 }
 
@@ -248,7 +292,8 @@ void cta::ControllerApp::beginEventRenderLoop() {
 
 void cta::ControllerApp::tick(int dt) {
 
-	if (!arduinoConnector.isConnected()) {
+	// Attempt to reconnect the arduino
+	if (!arduinoConnector.isConnected() && !arduinoConnector.isRestarting()) {
 		arduinoConnector.connect();
 	}
 
