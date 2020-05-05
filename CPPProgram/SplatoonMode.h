@@ -67,11 +67,13 @@ namespace cta {
 		int offset = 0;
 		int timeSinceOffsetChange = 0;
 
-		int offsetChangeDelay = 75;
+		int offsetChangeDelay = 50;
 		tgui::EditBox::Ptr delayEditBox;
 
-		int waveLength = 2;
+		int waveLength = 7;
 		tgui::EditBox::Ptr waveLengthEditBox;
+
+		sf::Color color1, color2;
 
 	protected:
 		void textChanged(tgui::Widget::Ptr widget, const std::string& signalName);

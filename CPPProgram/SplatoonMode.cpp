@@ -24,7 +24,7 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 	delayEditBox->setPosition("50% - width - 5", "50% - height / 2");
 	delayEditBox->setTextSize(16);
 	delayEditBox->setAlignment(tgui::EditBox::Alignment::Center);
-	delayEditBox->setText("75");
+	delayEditBox->setText("50");
 	delayEditBox->setCaretPosition(0);
 	delayEditBox->setMaximumCharacters(5);
 	delayEditBox->connect("TextChanged", &cta::SplatoonMode::textChanged, this);
@@ -35,12 +35,39 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 	waveLengthEditBox->setPosition("50% + 5", "50% - height / 2");
 	waveLengthEditBox->setTextSize(16);
 	waveLengthEditBox->setAlignment(tgui::EditBox::Alignment::Center);
-	waveLengthEditBox->setText("2");
+	waveLengthEditBox->setText("7");
 	waveLengthEditBox->setCaretPosition(0);
 	waveLengthEditBox->setMaximumCharacters(4);
 	waveLengthEditBox->connect("TextChanged", &cta::SplatoonMode::textChanged, this);
 	splatoonPanel->add(waveLengthEditBox, "waveLengthEditBox");
 
+
+	tgui::Button::Ptr colorSetAButton = tgui::Button::create();
+	colorSetAButton->setSize("20%", "10%");
+	colorSetAButton->setPosition("0%", "0%");
+	colorSetAButton->setText("ColorSetA");
+	colorSetAButton->setTextSize(16);
+	colorSetAButton->connect("pressed", [&]() {
+		color1 = sf::Color(1, 255, 59);
+		color2 = sf::Color(255, 1, 255);
+		}
+	);
+	splatoonPanel->add(colorSetAButton, "colorSetAButton");
+
+	tgui::Button::Ptr colorSetBButton = tgui::Button::create();
+	colorSetBButton->setSize("20%", "10%");
+	colorSetBButton->setPosition("20%", "0%");
+	colorSetBButton->setText("ColorSetB");
+	colorSetBButton->setTextSize(16);
+	colorSetBButton->connect("pressed", [&]() {
+		color1 = sf::Color(255, 55, 0);
+		color2 = sf::Color(15, 219, 0);
+		}
+	);
+	splatoonPanel->add(colorSetBButton, "colorSetBButton");
+
+	color1 = sf::Color(1, 255, 59);
+	color2 = sf::Color(255, 1, 255);
 
 
 	this->deActivate();
@@ -72,9 +99,9 @@ void cta::SplatoonMode::tick(int dt) {
 		for (int i = 0; i < 10; i++) {
 			sf::Color color;
 			if (abs(i - offset) % (waveLength * 2) < waveLength) {
-				color = sf::Color(1, 255, 59);
+				color = color1;
 			} else {
-				color = sf::Color(255, 1, 255);
+				color = color2;
 			}
 
 			*curByte = i;
