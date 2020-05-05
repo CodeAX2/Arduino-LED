@@ -1,5 +1,6 @@
 #pragma once
 #include "LEDMode.h"
+#include "ColorPickerModule.h"
 
 namespace cta {
 
@@ -69,11 +70,25 @@ namespace cta {
 
 		int offsetChangeDelay = 50;
 		tgui::EditBox::Ptr delayEditBox;
+		tgui::Label::Ptr delayLabel;
 
 		int waveLength = 7;
 		tgui::EditBox::Ptr waveLengthEditBox;
+		tgui::Label::Ptr waveLabel;
 
 		sf::Color color1, color2;
+
+		tgui::Button::Ptr color1Button;
+		tgui::Button::Ptr color2Button;
+		tgui::Panel::Ptr color1Display;
+		tgui::Panel::Ptr color2Display;
+
+		cta::ColorPickerModule* colorPicker;
+		sf::Color* changingColor;
+		tgui::Panel::Ptr changingDisplayColor;
+		tgui::Button::Ptr confirmColorButton;
+
+		bool sendData = true;
 
 	protected:
 		void textChanged(tgui::Widget::Ptr widget, const std::string& signalName);

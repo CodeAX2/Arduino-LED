@@ -17,6 +17,30 @@ namespace cta {
 		*/
 		sf::Color getColor();
 
+
+		/*
+		
+		Set the currently selected color
+		
+		*/
+		void setColor(sf::Color color);
+
+		/*
+		
+		Hides the color picker by preventing
+		it from being rendered
+		
+		*/
+		void hide();
+
+		/*
+		
+		Re-enables rendering the color picker
+		so it can be seen again
+		
+		*/
+		void show();
+
 	private:
 
 		void textChanged(tgui::Widget::Ptr widget, const std::string& signalName);

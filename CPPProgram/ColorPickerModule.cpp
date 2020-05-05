@@ -206,3 +206,17 @@ void cta::ColorPickerModule::textChanged(tgui::Widget::Ptr widget, const std::st
 	}
 
 }
+
+void cta::ColorPickerModule::setColor(sf::Color color) {
+	redEditBox->setText(std::to_string(color.r));
+	greenEditBox->setText(std::to_string(color.g));
+	blueEditBox->setText(std::to_string(color.b));
+}
+
+void cta::ColorPickerModule::hide() {
+	containingPanel->setVisible(false);
+}
+
+void cta::ColorPickerModule::show() {
+	containingPanel->setVisible(true);
+}
