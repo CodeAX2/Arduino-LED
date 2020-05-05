@@ -1,6 +1,7 @@
 #include "VPicker.h"
 #include <iostream>
 #include <iomanip>
+#include "Utils.h"
 
 cta::VPicker::VPicker() {
 
@@ -22,6 +23,7 @@ cta::VPicker::Ptr cta::VPicker::copy(VPicker::ConstPtr widget) {
 }
 
 void cta::VPicker::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+
 	if (hsPicker == nullptr) return;
 	states.transform.translate(getPosition());
 
@@ -59,7 +61,19 @@ void cta::VPicker::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 }
 
+void cta::VPicker::update(sf::Time elapsedTime) {
+
+	if (firstUpdate) {
+		selectedColorX = getSize().x - 11;
+		firstUpdate = false;
+	}
+
+
+}
+
 void cta::VPicker::mouseMoved(tgui::Vector2f pos) {
+
+	updatingFromMouse = true;
 
 	tgui::Widget::mouseMoved(pos);
 	tgui::Vector2f relativePos = pos - getPosition();
@@ -74,14 +88,16 @@ void cta::VPicker::mouseMoved(tgui::Vector2f pos) {
 
 	}
 
+	updatingFromMouse = false;
+
 }
 
 void cta::VPicker::updateFinalColor() {
 
 	sf::Color newSelectedColor = hsPicker->getSelectedColor();
-	newSelectedColor.r *= selectedColorX / getSize().x;
-	newSelectedColor.g *= selectedColorX / getSize().x;
-	newSelectedColor.b *= selectedColorX / getSize().x;
+	newSelectedColor.r *= selectedColorX / (getSize().x - 11);
+	newSelectedColor.g *= selectedColorX / (getSize().x - 11);
+	newSelectedColor.b *= selectedColorX / (getSize().x - 11);
 
 	finalColor = newSelectedColor;
 
@@ -93,6 +109,7 @@ void cta::VPicker::updateFinalColor() {
 	hexSS << (int)finalColor.r << std::setfill('0') << std::setw(2);
 	hexSS << (int)finalColor.g << std::setfill('0') << std::setw(2);
 	hexSS << (int)finalColor.b;
+
 	hexTextBox->setText(hexSS.str());
 	hexTextBox->setCaretPosition(0);
 
@@ -123,4 +140,18 @@ void cta::VPicker::setHSPicker(cta::HSPicker::Ptr hsPicker) {
 
 sf::Color cta::VPicker::getFinalColor() {
 	return finalColor;
+}
+
+void cta::VPicker::setSelectedColor(sf::Color color) {
+	float hsv[] = { 0,0,0 };
+	cta::Utils::colorToHSV(color, hsv);
+
+	selectedColorX = (getSize().x - 10) * hsv[2] / 100.0;
+
+	finalColor = color;
+
+}
+
+bool cta::VPicker::isUpdatingFromMouse() {
+	return updatingFromMouse;
 }

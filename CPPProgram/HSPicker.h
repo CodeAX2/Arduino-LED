@@ -61,6 +61,35 @@ namespace cta {
 		void setVPicker(VPicker* vPicker);
 
 
+		/*
+		
+		Sets the selected color, and adjusts the
+		hue and saturation values
+		
+		*/
+		void setSelectedColor(sf::Color color);
+
+		/*
+
+		Returns true if the color is currently being
+		updated from the mouse
+
+		*/
+		bool isUpdatingFromMouse();
+
+	private:
+
+
+		/*
+		
+		Updates the selected color based
+		on the current selectedColorX and
+		selectedColorY values
+		
+		*/
+		void updateSelectedColor();
+
+
 	private:
 
 
@@ -93,6 +122,8 @@ namespace cta {
 		sf::Color selectedColor = sf::Color::Red;
 
 		VPicker* vPicker;
+
+		bool updatingFromMouse = false;
 
 	};
 

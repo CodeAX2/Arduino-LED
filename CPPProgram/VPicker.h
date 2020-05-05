@@ -35,6 +35,14 @@ namespace cta {
 
 		/*
 		
+		Update information about
+		the widget
+
+		*/
+		void update(sf::Time elapsedTime) override;
+
+		/*
+		
 		Override of the mouseMoved event function
 		to allow for moving the slidebar to
 		select the value.
@@ -69,6 +77,23 @@ namespace cta {
 		
 		*/
 		sf::Color getFinalColor();
+
+		/*
+		
+		Sets the currently selected color
+		and changes the position of the 
+		slider accordingly
+		
+		*/
+		void setSelectedColor(sf::Color color);
+
+		/*
+		
+		Returns true if the color is currently being
+		updated from the mouse
+		
+		*/
+		bool isUpdatingFromMouse();
 
 	private:
 
@@ -107,9 +132,10 @@ namespace cta {
 		so it is the final color value.
 
 		*/
-		sf::Color finalColor = sf::Color::Black;
+		sf::Color finalColor = sf::Color::Red;
 
-
+		bool updatingFromMouse = false;
+		bool firstUpdate = true;
 
 	};
 

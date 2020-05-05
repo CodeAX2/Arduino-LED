@@ -1,6 +1,7 @@
 #include "HSPicker.h"
 #include <iostream>
 #include "VPicker.h"
+#include "Utils.h"
 
 cta::HSPicker::HSPicker() {
 
@@ -98,6 +99,8 @@ void cta::HSPicker::draw(sf::RenderTarget& target, sf::RenderStates states) cons
 
 void cta::HSPicker::mouseMoved(tgui::Vector2f pos) {
 
+	updatingFromMouse = true;
+
 	tgui::Widget::mouseMoved(pos);
 	tgui::Vector2f relativePos = pos - getPosition();
 
@@ -111,54 +114,60 @@ void cta::HSPicker::mouseMoved(tgui::Vector2f pos) {
 		selectedColorX = relativePos.x;
 		selectedColorY = relativePos.y;
 
-		// Update the selected color
-		sf::Color newSelectedColor;
+		updateSelectedColor();
 
-		int i = selectedColorX * 255 * 6 / getSize().x;
-		int j = selectedColorY * 255 / getSize().y;
-
-		switch (i / 255) {
-		case 0:
-			newSelectedColor.r = 255;
-			newSelectedColor.g = i;
-			newSelectedColor.b = 0;
-			break;
-		case 1:
-			newSelectedColor.r = 255 * 2 - i;
-			newSelectedColor.g = 255;
-			newSelectedColor.b = 0;
-			break;
-		case 2:
-			newSelectedColor.r = 0;
-			newSelectedColor.g = 255;
-			newSelectedColor.b = i - 255 * 2;
-			break;
-		case 3:
-			newSelectedColor.r = 0;
-			newSelectedColor.g = 255 * 4 - i;
-			newSelectedColor.b = 255;
-			break;
-		case 4:
-			newSelectedColor.r = i - 255 * 4;
-			newSelectedColor.g = 0;
-			newSelectedColor.b = 255;
-			break;
-		case 5:
-			newSelectedColor.r = 255;
-			newSelectedColor.g = 0;
-			newSelectedColor.b = 255 * 6 - i;
-			break;
-		}
-
-		newSelectedColor.r = newSelectedColor.r + (255 - newSelectedColor.r) * j / 255.0;
-		newSelectedColor.g = newSelectedColor.g + (255 - newSelectedColor.g) * j / 255.0;
-		newSelectedColor.b = newSelectedColor.b + (255 - newSelectedColor.b) * j / 255.0;
-
-		selectedColor = newSelectedColor;
 		vPicker->updateFinalColor();
 
 	}
 
+	updatingFromMouse = false;
+
+}
+
+void cta::HSPicker::updateSelectedColor() {
+	sf::Color newSelectedColor;
+
+	int i = round(selectedColorX * 255 * 6 / (getSize().x - 10));
+	int j = round(selectedColorY * 255 / (getSize().y - 10));
+
+	switch (i / 255) {
+	case 0:
+		newSelectedColor.r = 255;
+		newSelectedColor.g = i;
+		newSelectedColor.b = 0;
+		break;
+	case 1:
+		newSelectedColor.r = 255 * 2 - i;
+		newSelectedColor.g = 255;
+		newSelectedColor.b = 0;
+		break;
+	case 2:
+		newSelectedColor.r = 0;
+		newSelectedColor.g = 255;
+		newSelectedColor.b = i - 255 * 2;
+		break;
+	case 3:
+		newSelectedColor.r = 0;
+		newSelectedColor.g = 255 * 4 - i;
+		newSelectedColor.b = 255;
+		break;
+	case 4:
+		newSelectedColor.r = i - 255 * 4;
+		newSelectedColor.g = 0;
+		newSelectedColor.b = 255;
+		break;
+	case 5:
+		newSelectedColor.r = 255;
+		newSelectedColor.g = 0;
+		newSelectedColor.b = 255 * 6 - i;
+		break;
+	}
+
+	newSelectedColor.r = newSelectedColor.r + (255 - newSelectedColor.r) * j / 255.0;
+	newSelectedColor.g = newSelectedColor.g + (255 - newSelectedColor.g) * j / 255.0;
+	newSelectedColor.b = newSelectedColor.b + (255 - newSelectedColor.b) * j / 255.0;
+
+	selectedColor = newSelectedColor;
 }
 
 sf::Color cta::HSPicker::getSelectedColor() {
@@ -167,4 +176,19 @@ sf::Color cta::HSPicker::getSelectedColor() {
 
 void cta::HSPicker::setVPicker(VPicker* vPicker) {
 	this->vPicker = vPicker;
+}
+
+void cta::HSPicker::setSelectedColor(sf::Color color) {
+
+	float hsv[] = { 0,0,0 };
+	cta::Utils::colorToHSV(color, hsv);
+
+	selectedColorX = (getSize().x - 10) * hsv[0] / 360.0;
+	selectedColorY = (getSize().y - 10) * (1 - hsv[1] / 100.0);
+	updateSelectedColor();
+
+}
+
+bool cta::HSPicker::isUpdatingFromMouse() {
+	return updatingFromMouse;
 }

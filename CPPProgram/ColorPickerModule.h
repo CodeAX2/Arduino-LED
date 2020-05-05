@@ -28,6 +28,8 @@ namespace cta {
 		cta::VPicker::Ptr vPicker;
 		tgui::EditBox::Ptr hexEditBox, redEditBox, greenEditBox, blueEditBox;
 
+		bool updatingFromSelf = false;
+
 	};
 
 }
