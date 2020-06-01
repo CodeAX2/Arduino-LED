@@ -7,7 +7,7 @@
 // For example, a GRB format has red channel set to 1, green set to 0, and blue set to 2
 
 class ChannelRGB {
-  public:
+public:
 
     ChannelRGB();
 
@@ -50,7 +50,7 @@ class ChannelRGB {
     bool equalsColor(ChannelRGB other);
 
 
-  private:
+private:
     int red, green, blue;
     int redChannel, greenChannel, blueChannel;
 

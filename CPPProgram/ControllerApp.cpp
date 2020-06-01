@@ -11,7 +11,7 @@
 #include "SplatoonMode.h"
 #include "ArduinoConnector.h"
 
-cta::ControllerApp::ControllerApp() : arduinoConnector("COM4") {
+cta::ControllerApp::ControllerApp() : arduinoConnector("COM5", 35, 0, 1, 2) {
 
 	eventWindowHandle = NULL;
 	icon = NULL;
@@ -229,7 +229,8 @@ void cta::ControllerApp::beginEventRenderLoop() {
 			if (e.type == sf::Event::Closed) {
 				mainWindow.setVisible(false);
 				windowIsVisible = false;
-			} else if (e.type == sf::Event::Resized) {
+			}
+			else if (e.type == sf::Event::Resized) {
 
 				sf::Vector2u newSize = mainWindow.getSize();
 				bool smallerThanMinimumSize = false;
@@ -257,7 +258,8 @@ void cta::ControllerApp::beginEventRenderLoop() {
 				sf::View newView(center, size);
 				mainWindow.setView(newView);
 
-			} else {
+			}
+			else {
 				mainWindowGUI.handleEvent(e);
 			}
 		}

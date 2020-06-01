@@ -92,6 +92,23 @@ void cta::VPicker::mouseMoved(tgui::Vector2f pos) {
 
 }
 
+void cta::VPicker::leftMousePressed(tgui::Vector2f pos) {
+
+	m_mouseDown = true;
+	updatingFromMouse = true;
+
+	tgui::Widget::leftMousePressed(pos);
+	tgui::Vector2f relativePos = pos - getPosition();
+
+	if (relativePos.x < 0) relativePos.x = 0;
+	if (relativePos.x >= getSize().x - 10) relativePos.x = getSize().x - 11;
+
+	selectedColorX = relativePos.x;
+	updateFinalColor();
+
+	updatingFromMouse = false;
+}
+
 void cta::VPicker::updateFinalColor() {
 
 	sf::Color newSelectedColor = hsPicker->getSelectedColor();

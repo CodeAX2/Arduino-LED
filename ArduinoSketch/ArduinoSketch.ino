@@ -11,6 +11,8 @@ const int GRADIENT_COLOR_MODE = 2;
 const int INDIVIDUAL_STATIC_COLOR_MODE = 3;
 const int AUDIO_MODE = 4;
 const int STARTUP_DATA_SET_MODE = 5;
+const int TWO_COLOR_WAVE_MODE = 6;
+const int RAINBOW_COLOR_WAVE_MODE = 7;
 
 int currentMode = NO_MODE;
 PololuLedStrip<12> ledStrip;
@@ -47,6 +49,19 @@ int prevBrightnessDelta = 0;
 int prevPeakValue = 0;
 int prevMinValue = 1000;
 
+// Two color wave mode data
+bool isWave = false;
+ChannelRGB waveColor1, waveColor2;
+int waveLength = 0;
+int waveMSDelay = 0;
+unsigned long msSinceWaveStart = 0;
+
+// Rainbow wave mode data
+bool isRainbowWave = false;
+int rainbowWaveLength = 0;
+int rainbowWaveMSDelay = 0;
+unsigned long msSinceRainbowWaveStart = 0;
+
 byte defaultStartupData[] = {0, 60, 0, 0, 2, 1, 1, 0, 200, 75};
 
 void setup() {
@@ -74,7 +89,7 @@ void setup() {
 
 void loop() {
 
-  if (Serial.available() > 0) {
+  while (Serial.available() > 0) {
     // Recieved data over serial
     byte incomingByte = Serial.read();
     handleData(incomingByte);
@@ -94,7 +109,7 @@ void loop() {
 
       ChannelRGB colorA = gradientColors[curColorIndex];
       ChannelRGB colorB =
-          gradientColors[(curColorIndex + 1) % numGradientColors];
+        gradientColors[(curColorIndex + 1) % numGradientColors];
 
       ChannelRGB curColor(colorA);
 
@@ -179,7 +194,7 @@ void loop() {
 
       // int curBrightness = ((float)audioLevel / 1000 * 255);
       int curBrightness = 60 - ticksSinceLastAudioPeak *
-                                   ((float)675 / (float)(audioLevel + 50));
+                          ((float)675 / (float)(audioLevel + 50));
       if (curBrightness > 60)
         curBrightness = 60;
       if (curBrightness < 0)
@@ -225,70 +240,149 @@ void loop() {
       prevBrightnessDelta = curBrightness - prevBrightness;
       prevBrightness = curBrightness;
     }
+  } else if (isWave) {
+
+    rgb_color colors[numLed];
+
+    for (uint16_t i = 0; i < numLed; i++) {
+
+      ChannelRGB curColor, nextColor;
+
+      if ((i + msSinceWaveStart / waveMSDelay) % (waveLength * 2) < waveLength) {
+        curColor = waveColor1;
+      } else {
+        curColor = waveColor2;
+      }
+
+      if ((i + msSinceWaveStart / waveMSDelay + 1) % (waveLength * 2) < waveLength) {
+        nextColor = waveColor1;
+      } else {
+        nextColor = waveColor2;
+      }
+
+
+
+      int color2Weight = msSinceWaveStart % waveMSDelay;
+      int color1Weight = waveMSDelay - color2Weight;
+
+      int fColorR = ((float)color1Weight * curColor.getRed() + (float)color2Weight * nextColor.getRed()) / (float)waveMSDelay;
+      int fColorG = ((float)color1Weight * curColor.getGreen() + (float)color2Weight * nextColor.getGreen()) / (float)waveMSDelay;
+      int fColorB = ((float)color1Weight * curColor.getBlue() + (float)color2Weight * nextColor.getBlue()) / (float)waveMSDelay;
+
+      colors[i] = ChannelRGB(fColorR, fColorG, fColorB, redChannel, greenChannel, blueChannel).getColorForLED();
+
+    }
+
+    ledStrip.write(colors, numLed);
+
+    msSinceWaveStart += millis() - prevUpdate;
+    prevUpdate = millis();
+
+  } else if (isRainbowWave) {
+
+    rgb_color colors[numLed];
+
+    float huePerLED = 1.0 / rainbowWaveLength;
+    for (uint16_t i = 0; i < numLed; i++) {
+      int rainR = 0, rainG = 0, rainB = 0;
+      float hue = (i % rainbowWaveLength) / (float) (rainbowWaveLength);
+      hue += ((float)msSinceRainbowWaveStart / rainbowWaveMSDelay) * huePerLED;
+      HSVtoRGB(hue, 1, 1, rainR, rainG, rainB);
+      colors[i] = ChannelRGB(rainR, rainG, rainB).getColorForLED();
+    }
+
+    ledStrip.write(colors, numLed);
+
+    msSinceRainbowWaveStart += millis() - prevUpdate;
+    prevUpdate = millis();
   }
 }
 
-int currentByteInStream = 0;
+long int currentByteInStream = 0;
 
 void handleData(byte data) {
 
   switch (currentMode) {
-  case NO_MODE:
-    currentByteInStream = 0;
-    currentMode = data;
-    break;
+    case NO_MODE:
+      currentByteInStream = 0;
+      currentMode = data;
+      break;
 
-  case SETUP_MODE:
-    setupModeData(data);
-    break;
+    case SETUP_MODE:
+      setupModeData(data);
+      break;
 
-  case ALL_STATIC_COLOR_MODE:
-    isGradient = false;
-    isAudio = false;
-    allStaticColorModeData(data);
-    break;
+    case ALL_STATIC_COLOR_MODE:
+      isGradient = false;
+      isAudio = false;
+      isWave = false;
+      isRainbowWave = false;
+      allStaticColorModeData(data);
+      break;
 
-  case GRADIENT_COLOR_MODE:
-    isAudio = false;
-    gradientColorModeData(data);
-    break;
+    case GRADIENT_COLOR_MODE:
+      isAudio = false;
+      isWave = false;
+      isRainbowWave = false;
+      gradientColorModeData(data);
+      break;
 
-  case INDIVIDUAL_STATIC_COLOR_MODE:
-    isAudio = false;
-    isGradient = false;
-    individualStaticColorModeData(data);
-    break;
+    case INDIVIDUAL_STATIC_COLOR_MODE:
+      isAudio = false;
+      isGradient = false;
+      isWave = false;
+      isRainbowWave = false;
+      individualStaticColorModeData(data);
+      break;
 
-  case AUDIO_MODE:
-    isGradient = false;
-    audioModeData(data);
-    break;
+    case AUDIO_MODE:
+      isGradient = false;
+      isWave = false;
+      isRainbowWave = false;
+      audioModeData(data);
+      break;
 
-  case STARTUP_DATA_SET_MODE:
-    startupDataSetModeData(data);
-    break;
+    case STARTUP_DATA_SET_MODE:
+      startupDataSetModeData(data);
+      break;
+
+    case TWO_COLOR_WAVE_MODE:
+      isAudio = false;
+      isGradient = false;
+      isRainbowWave = false;
+      twoColorWaveModeData(data);
+      break;
+
+    case RAINBOW_COLOR_WAVE_MODE:
+      isAudio = false;
+      isGradient = false;
+      isWave = false;
+      rainbowColorWaveModeData(data);
+      break;
+
+
   }
 }
 
 void setupModeData(byte data) {
 
   switch (currentByteInStream) {
-  case 0:
-    numLed = data;
-    break;
-  case 1:
-    numLed += 256 * (int)data;
-    break;
-  case 2:
-    redChannel = data;
-    break;
-  case 3:
-    greenChannel = data;
-    break;
-  case 4:
-    blueChannel = data;
-    currentMode = NO_MODE;
-    break;
+    case 0:
+      numLed = data;
+      break;
+    case 1:
+      numLed += 256 * (int)data;
+      break;
+    case 2:
+      redChannel = data;
+      break;
+    case 3:
+      greenChannel = data;
+      break;
+    case 4:
+      blueChannel = data;
+      currentMode = NO_MODE;
+      break;
   }
 
   currentByteInStream++;
@@ -300,24 +394,24 @@ int staticBlue = 0;
 void allStaticColorModeData(byte data) {
 
   switch (currentByteInStream) {
-  case 0:
-    staticRed = data;
-    break;
-  case 1:
-    staticGreen = data;
-    break;
-  case 2:
-    staticBlue = data;
+    case 0:
+      staticRed = data;
+      break;
+    case 1:
+      staticGreen = data;
+      break;
+    case 2:
+      staticBlue = data;
 
-    ChannelRGB color(staticRed, staticGreen, staticBlue, redChannel,
-                     greenChannel, blueChannel);
-    rgb_color colors[numLed];
-    for (uint16_t i = 0; i < numLed; i++) {
-      colors[i] = color.getColorForLED();
-    }
-    ledStrip.write(colors, numLed);
-    currentMode = NO_MODE;
-    break;
+      ChannelRGB color(staticRed, staticGreen, staticBlue, redChannel,
+                       greenChannel, blueChannel);
+      rgb_color colors[numLed];
+      for (uint16_t i = 0; i < numLed; i++) {
+        colors[i] = color.getColorForLED();
+      }
+      ledStrip.write(colors, numLed);
+      currentMode = NO_MODE;
+      break;
   }
 
   currentByteInStream++;
@@ -329,43 +423,43 @@ int curGradientBlue = 0;
 unsigned int curFadeTime = 0;
 void gradientColorModeData(byte data) {
   switch (currentByteInStream) {
-  case 0:
-    numGradientColors = data;
-    break;
-  default:
-
-    int relativeByteInStream = (currentByteInStream - 1) % 5;
-    int currentGradientDataIndex = (currentByteInStream - 1) / 5;
-    if (currentGradientDataIndex >= 8)
-      break;
-    switch (relativeByteInStream) {
     case 0:
-      curGradientRed = data;
+      numGradientColors = data;
       break;
-    case 1:
-      curGradientGreen = data;
-      break;
-    case 2:
-      curGradientBlue = data;
-      break;
-    case 3:
-      curFadeTime = data;
-      break;
-    case 4:
-      curFadeTime += 256 * (unsigned int)data;
-      gradientColors[currentGradientDataIndex] =
-          ChannelRGB(curGradientRed, curGradientGreen, curGradientBlue,
-                     redChannel, greenChannel, blueChannel);
-      fadeTimes[currentGradientDataIndex] = curFadeTime;
+    default:
 
-      if (currentGradientDataIndex == numGradientColors - 1) {
-        isGradient = true;
-        currentMode = NO_MODE;
+      int relativeByteInStream = (currentByteInStream - 1) % 5;
+      int currentGradientDataIndex = (currentByteInStream - 1) / 5;
+      if (currentGradientDataIndex >= 8)
+        break;
+      switch (relativeByteInStream) {
+        case 0:
+          curGradientRed = data;
+          break;
+        case 1:
+          curGradientGreen = data;
+          break;
+        case 2:
+          curGradientBlue = data;
+          break;
+        case 3:
+          curFadeTime = data;
+          break;
+        case 4:
+          curFadeTime += 256 * (unsigned int)data;
+          gradientColors[currentGradientDataIndex] =
+            ChannelRGB(curGradientRed, curGradientGreen, curGradientBlue,
+                       redChannel, greenChannel, blueChannel);
+          fadeTimes[currentGradientDataIndex] = curFadeTime;
+
+          if (currentGradientDataIndex == numGradientColors - 1) {
+            isGradient = true;
+            currentMode = NO_MODE;
+          }
+          break;
       }
-      break;
-    }
 
-    break;
+      break;
   }
 
   currentByteInStream++;
@@ -379,48 +473,48 @@ rgb_color *individualLedStripData;
 void individualStaticColorModeData(byte data) {
 
   switch (currentByteInStream) {
-  case 0:
-    numLedsToUpdate = data;
-    break;
-  case 1:
-    numLedsToUpdate += 256 * data;
-    individualLedStripData = new rgb_color[numLed];
-    for (int i = 0; i < numLed; i++) {
-      individualLedStripData[i] = rgb_color(0, 0, 0);
-    }
-    break;
-  default:
-    int relativeByteInStream = (currentByteInStream - 2) % 5;
-    int currentColorDataIndex = (currentByteInStream - 2) / 5;
-    switch (relativeByteInStream) {
     case 0:
-      currentLedID = data;
+      numLedsToUpdate = data;
       break;
     case 1:
-      currentLedID += 256 * data;
+      numLedsToUpdate += 256 * data;
+      individualLedStripData = new rgb_color[numLed];
+      for (int i = 0; i < numLed; i++) {
+        individualLedStripData[i] = rgb_color(0, 0, 0);
+      }
       break;
-    case 2:
-      currentLedRed = data;
-      break;
-    case 3:
-      currentLedGreen = data;
-      break;
-    case 4:
-      currentLedBlue = data;
+    default:
+      int relativeByteInStream = (currentByteInStream - 2) % 5;
+      int currentColorDataIndex = (currentByteInStream - 2) / 5;
+      switch (relativeByteInStream) {
+        case 0:
+          currentLedID = data;
+          break;
+        case 1:
+          currentLedID += 256 * data;
+          break;
+        case 2:
+          currentLedRed = data;
+          break;
+        case 3:
+          currentLedGreen = data;
+          break;
+        case 4:
+          currentLedBlue = data;
 
-      ChannelRGB color(currentLedRed, currentLedGreen, currentLedBlue,
-                       redChannel, greenChannel, blueChannel);
-      individualLedStripData[currentLedID] = color.getColorForLED();
-      if (currentColorDataIndex == numLedsToUpdate - 1) {
-        ledStrip.write(individualLedStripData, numLed);
-        delete[] individualLedStripData;
-        currentMode = NO_MODE;
+          ChannelRGB color(currentLedRed, currentLedGreen, currentLedBlue,
+                           redChannel, greenChannel, blueChannel);
+          individualLedStripData[currentLedID] = color.getColorForLED();
+          if (currentColorDataIndex == numLedsToUpdate - 1) {
+            ledStrip.write(individualLedStripData, numLed);
+            delete[] individualLedStripData;
+            currentMode = NO_MODE;
+          }
+
+          break;
       }
 
       break;
-    }
-
-    break;
   }
 
   currentByteInStream++;
@@ -433,52 +527,52 @@ int audioByteStreamBegin = 0;
 unsigned int tempAudioLevel = 0;
 void audioModeData(byte data) {
   switch (currentByteInStream) {
-  case 0:
-    numAudioColors = data;
-    break;
-  default:
+    case 0:
+      numAudioColors = data;
+      break;
+    default:
 
-    if (!isAudio) {
-      int relativeByteInStream = (currentByteInStream - 1) % 3;
-      int currentAudioDataIndex = (currentByteInStream - 1) / 3;
-      if (currentAudioDataIndex >= 8)
-        break;
-      switch (relativeByteInStream) {
-      case 0:
-        curAudioRed = data;
-        break;
-      case 1:
-        curAudioGreen = data;
-        break;
-      case 2:
-        curAudioBlue = data;
-        audioColors[currentAudioDataIndex] =
-            ChannelRGB(curAudioRed, curAudioGreen, curAudioBlue, redChannel,
-                       greenChannel, blueChannel);
+      if (!isAudio) {
+        int relativeByteInStream = (currentByteInStream - 1) % 3;
+        int currentAudioDataIndex = (currentByteInStream - 1) / 3;
+        if (currentAudioDataIndex >= 8)
+          break;
+        switch (relativeByteInStream) {
+          case 0:
+            curAudioRed = data;
+            break;
+          case 1:
+            curAudioGreen = data;
+            break;
+          case 2:
+            curAudioBlue = data;
+            audioColors[currentAudioDataIndex] =
+              ChannelRGB(curAudioRed, curAudioGreen, curAudioBlue, redChannel,
+                         greenChannel, blueChannel);
 
-        if (currentAudioDataIndex == numAudioColors - 1) {
-          isAudio = true;
-          audioByteStreamBegin = currentByteInStream;
+            if (currentAudioDataIndex == numAudioColors - 1) {
+              isAudio = true;
+              audioByteStreamBegin = currentByteInStream;
+            }
+            break;
         }
-        break;
-      }
-    } else {
+      } else {
 
-      if (currentByteInStream - audioByteStreamBegin > 0) {
-        if ((currentByteInStream - audioByteStreamBegin) % 2 == 1) {
-          tempAudioLevel = (unsigned int)data;
-        } else {
-          tempAudioLevel += 256 * (unsigned int)data;
-          audioLevel = tempAudioLevel;
-          if (tempAudioLevel == 65535) {
-            isAudio = false;
-            currentMode = NO_MODE;
+        if (currentByteInStream - audioByteStreamBegin > 0) {
+          if ((currentByteInStream - audioByteStreamBegin) % 2 == 1) {
+            tempAudioLevel = (unsigned int)data;
+          } else {
+            tempAudioLevel += 256 * (unsigned int)data;
+            audioLevel = tempAudioLevel;
+            if (tempAudioLevel == 65535) {
+              isAudio = false;
+              currentMode = NO_MODE;
+            }
           }
         }
       }
-    }
 
-    break;
+      break;
   }
 
   currentByteInStream++;
@@ -489,23 +583,86 @@ int numStoredBytes = 0;
 void startupDataSetModeData(byte data) {
 
   switch (currentByteInStream) {
-  case 0:
-    numStoredBytes = data;
-    if (data <= 64)
-      EEPROM.update(0, data);
-    break;
-  default:
-    if (currentByteInStream <= 65) {
-      EEPROM.update(currentByteInStream, data);
-      if (currentByteInStream == numStoredBytes + 1) {
-        currentMode = NO_MODE;
+    case 0:
+      numStoredBytes = data;
+      if (data <= 64)
+        EEPROM.update(0, data);
+      break;
+    default:
+      if (currentByteInStream <= 65) {
+        EEPROM.update(currentByteInStream, data);
+        if (currentByteInStream == numStoredBytes + 1) {
+          currentMode = NO_MODE;
+        }
       }
-    }
-    break;
+      break;
   }
 
   currentByteInStream++;
 }
+
+void twoColorWaveModeData(byte data) {
+  switch (currentByteInStream) {
+    case 0:
+      waveColor1.setRed(data);
+      break;
+    case 1:
+      waveColor1.setGreen(data);
+      break;
+    case 2:
+      waveColor1.setBlue(data);
+      break;
+    case 3:
+      waveColor2.setRed(data);
+      break;
+    case 4:
+      waveColor2.setGreen(data);
+      break;
+    case 5:
+      waveColor2.setBlue(data);
+      break;
+    case 6:
+      waveMSDelay = data;
+      break;
+    case 7:
+      waveMSDelay += 256 * data;
+      break;
+    case 8:
+      waveLength = data;
+      break;
+    case 9:
+      waveLength += 256 * data;
+      isWave = true;
+      currentMode = NO_MODE;
+      msSinceWaveStart = 0;
+      break;
+  }
+
+  currentByteInStream++;
+}
+
+void rainbowColorWaveModeData(byte data) {
+  switch (currentByteInStream) {
+    case 0:
+      rainbowWaveMSDelay = data;
+      break;
+    case 1:
+      rainbowWaveMSDelay += 256 * data;
+      break;
+    case 2:
+      rainbowWaveLength = data;
+      break;
+    case 3:
+      rainbowWaveLength += 256 * data;
+      isRainbowWave = true;
+      currentMode = NO_MODE;
+      msSinceRainbowWaveStart = 0;
+      break;
+  }
+
+  currentByteInStream++;
+}
+
 
 ChannelRGB setBrightness(ChannelRGB baseColor, float brightness) {
 
@@ -540,26 +697,26 @@ ChannelRGB setBrightness(ChannelRGB baseColor, float brightness) {
   float t = val * (1.f - sat * (1 - f));
 
   switch (h) {
-  default:
-  case 0:
-  case 6:
-    return ChannelRGB(val * 255, t * 255, p * 255, redChannel, greenChannel,
-                      blueChannel);
-  case 1:
-    return ChannelRGB(q * 255, val * 255, p * 255, redChannel, greenChannel,
-                      blueChannel);
-  case 2:
-    return ChannelRGB(p * 255, val * 255, t * 255, redChannel, greenChannel,
-                      blueChannel);
-  case 3:
-    return ChannelRGB(p * 255, q * 255, val * 255, redChannel, greenChannel,
-                      blueChannel);
-  case 4:
-    return ChannelRGB(t * 255, p * 255, val * 255, redChannel, greenChannel,
-                      blueChannel);
-  case 5:
-    return ChannelRGB(val * 255, p * 255, q * 255, redChannel, greenChannel,
-                      blueChannel);
+    default:
+    case 0:
+    case 6:
+      return ChannelRGB(val * 255, t * 255, p * 255, redChannel, greenChannel,
+                        blueChannel);
+    case 1:
+      return ChannelRGB(q * 255, val * 255, p * 255, redChannel, greenChannel,
+                        blueChannel);
+    case 2:
+      return ChannelRGB(p * 255, val * 255, t * 255, redChannel, greenChannel,
+                        blueChannel);
+    case 3:
+      return ChannelRGB(p * 255, q * 255, val * 255, redChannel, greenChannel,
+                        blueChannel);
+    case 4:
+      return ChannelRGB(t * 255, p * 255, val * 255, redChannel, greenChannel,
+                        blueChannel);
+    case 5:
+      return ChannelRGB(val * 255, p * 255, q * 255, redChannel, greenChannel,
+                        blueChannel);
   }
 }
 
@@ -593,4 +750,17 @@ void RGBtoHSV(float &fR, float &fG, float fB, float &fH, float &fS, float &fV) {
   if (fH < 0) {
     fH = 360 + fH;
   }
+}
+
+void HSVtoRGB(float h, float s, float v, int& r, int& g, int&b) {
+  r = v * mix(1.0, constrain(abs(fract(h + 1.0) * 6.0 - 3.0) - 1.0, 0.0, 1.0), s) * 255;
+  g = v * mix(1.0, constrain(abs(fract(h + 0.6666666) * 6.0 - 3.0) - 1.0, 0.0, 1.0), s) * 255;
+  b = v * mix(1.0, constrain(abs(fract(h + 0.3333333) * 6.0 - 3.0) - 1.0, 0.0, 1.0), s) * 255;
+}
+
+float fract(float x) {
+  return x - int(x);
+}
+float mix(float a, float b, float t) {
+  return a + (b - a) * t;
 }

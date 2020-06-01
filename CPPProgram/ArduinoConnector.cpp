@@ -2,8 +2,12 @@
 #include <sstream>
 #include <SFML/System.hpp>
 
-cta::ArduinoConnector::ArduinoConnector(std::string comPort) {
+cta::ArduinoConnector::ArduinoConnector(std::string comPort, int numLEDs, int redChannel, int greenChannel, int blueChannel) {
 	this->comPort = comPort;
+	this->numLEDs = numLEDs;
+	this->redChannel = redChannel;
+	this->greenChannel = greenChannel;
+	this->blueChannel = blueChannel;
 }
 
 bool cta::ArduinoConnector::connect() {
@@ -17,6 +21,10 @@ bool cta::ArduinoConnector::connect() {
 	}
 
 	connected = true;
+
+	unsigned char startupData[] = { 0, numLEDs, numLEDs >> 8, redChannel, greenChannel, blueChannel };
+	sendDataSlow(startupData, 6, 0, 4);
+
 	return true;
 }
 
@@ -126,9 +134,11 @@ int cta::ArduinoConnector::sendDataSlow(unsigned char* toSendStart, int amountTo
 
 		amountSent += currentAmountSent;
 		delete[] currentByte;
-		if (msToSend != 0)
+		if (msToSend != 0) {
 			sf::sleep(sf::milliseconds(msToSend / (amountToSend / amountPerPackage + 1)));
+		}
 	}
+
 
 	return amountToSend;
 }
@@ -174,4 +184,22 @@ bool cta::ArduinoConnector::restart() {
 	// Finished restarting successfully
 	restarting = false;
 	return true;
+}
+
+
+int cta::ArduinoConnector::getNumLEDs() {
+	return numLEDs;
+}
+
+int cta::ArduinoConnector::getRedChannel() {
+	return redChannel;
+}
+
+
+int cta::ArduinoConnector::getGreenChannel() {
+	return greenChannel;
+}
+
+int cta::ArduinoConnector::getBlueChannel() {
+	return blueChannel;
 }

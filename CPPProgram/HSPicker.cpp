@@ -97,6 +97,7 @@ void cta::HSPicker::draw(sf::RenderTarget& target, sf::RenderStates states) cons
 
 }
 
+
 void cta::HSPicker::mouseMoved(tgui::Vector2f pos) {
 
 	updatingFromMouse = true;
@@ -122,6 +123,29 @@ void cta::HSPicker::mouseMoved(tgui::Vector2f pos) {
 
 	updatingFromMouse = false;
 
+}
+
+void cta::HSPicker::leftMousePressed(tgui::Vector2f pos) {
+
+	m_mouseDown = true;
+	updatingFromMouse = true;
+
+	tgui::Widget::leftMousePressed(pos);
+	tgui::Vector2f relativePos = pos - getPosition();
+
+	if (relativePos.x < 0) relativePos.x = 0;
+	if (relativePos.x >= getSize().x - 10) relativePos.x = getSize().x - 11;
+	if (relativePos.y < 0) relativePos.y = 0;
+	if (relativePos.y >= getSize().y - 10) relativePos.y = getSize().y - 11;
+
+	selectedColorX = relativePos.x;
+	selectedColorY = relativePos.y;
+
+	updateSelectedColor();
+
+	vPicker->updateFinalColor();
+
+	updatingFromMouse = false;
 }
 
 void cta::HSPicker::updateSelectedColor() {

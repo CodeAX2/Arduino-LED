@@ -77,6 +77,10 @@ namespace cta {
 		tgui::Label::Ptr waveLabel;
 
 		sf::Color color1, color2;
+		sf::Color prevColor1, prevColor2;
+		bool needsUpdating = false;
+		int msSinceLastUpdate = 0;
+
 
 		tgui::Button::Ptr color1Button;
 		tgui::Button::Ptr color2Button;

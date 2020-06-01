@@ -44,6 +44,15 @@ namespace cta {
 
 		/*
 
+		Called when the mouse is clicked.
+		Updates the circle to select the 
+		color.
+
+		*/
+		void leftMousePressed(tgui::Vector2f pos) override;
+
+		/*
+
 		Gets the currently selected
 		color. Only supports hue and
 		saturation.

@@ -140,48 +140,25 @@ void cta::SplatoonMode::draw(int dt) {
 
 void cta::SplatoonMode::tick(int dt) {
 
-	timeSinceOffsetChange += dt;
-	if (timeSinceOffsetChange >= offsetChangeDelay) {
-		offset++;
-		timeSinceOffsetChange = 0;
-	}
+	int offsetToSend = offsetChangeDelay;
+	if (offsetToSend < 10) offsetToSend = 10;
 
-	if (arduinoConnector->isConnected()) {
+	int waveLengthToSend = waveLength;
 
-		unsigned char newColorData[53];
-		newColorData[0] = 3;
-		newColorData[1] = 10;
-		newColorData[2] = 0;
+	msSinceLastUpdate += dt;
 
-		unsigned char* curByte = newColorData + 3;
+	if ((color1 != prevColor1 || color2 != prevColor2 || needsUpdating) && msSinceLastUpdate >= 200) {
+		unsigned char bytesToSend[] = { 6, color1.r, color1.g, color1.b, color2.r, color2.g, color2.b, offsetToSend, offsetToSend >> 8, waveLengthToSend, waveLengthToSend >> 8 };
+		arduinoConnector->sendDataSlow(bytesToSend, 11, 0, 4);
 
-		for (int i = 0; i < 10; i++) {
-			sf::Color color;
-			if (abs(i - offset) % (waveLength * 2) < waveLength) {
-				color = color1;
-			} else {
-				color = color2;
-			}
+		//unsigned char bytesToSend[] = { 7, 50, 0, 35, 0 };
+		//arduinoConnector->sendDataSlow(bytesToSend, 5, 0, 8);
 
-			*curByte = i;
-			curByte++;
+		prevColor1 = color1;
+		prevColor2 = color2;
+		needsUpdating = false;
+		msSinceLastUpdate = 0;
 
-			*curByte = 0;
-			curByte++;
-
-			*curByte = color.r;
-			curByte++;
-
-			*curByte = color.g;
-			curByte++;
-
-			*curByte = color.b;
-			curByte++;
-
-		}
-
-		if (sendData)
-			arduinoConnector->sendDataSlow(newColorData, 53, 0, 4);
 	}
 
 
@@ -194,6 +171,7 @@ void cta::SplatoonMode::handleEvent(sf::Event e) {
 
 void cta::SplatoonMode::activate() {
 	splatoonPanel->setVisible(true);
+	needsUpdating = true;
 }
 
 void cta::SplatoonMode::deActivate() {
@@ -207,10 +185,14 @@ void cta::SplatoonMode::textChanged(tgui::Widget::Ptr widget, const std::string&
 	if (widgetName == "delayEditBox") {
 		if (delayEditBox->getText().toAnsiString() != "")
 			offsetChangeDelay = std::stoi(delayEditBox->getText().toAnsiString());
-	} else if (widgetName == "waveLengthEditBox") {
+
+	}
+	else if (widgetName == "waveLengthEditBox") {
 		if (waveLengthEditBox->getText().toAnsiString() != "")
 			waveLength = std::stoi(waveLengthEditBox->getText().toAnsiString());
 	}
+
+	needsUpdating = true;
 
 
 }

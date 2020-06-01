@@ -50,6 +50,16 @@ namespace cta {
 		*/
 		void mouseMoved(tgui::Vector2f pos) override;
 
+
+		/*
+		
+		Override of the leftMousePressed event function
+		to allow for clicking and moving the slidebar
+		to select the value.
+		
+		*/
+		void leftMousePressed(tgui::Vector2f pos) override;
+
 		/*
 		
 		Sets this value slider's repsective
