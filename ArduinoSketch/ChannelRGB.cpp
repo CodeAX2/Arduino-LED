@@ -20,7 +20,7 @@ ChannelRGB::ChannelRGB(int red, int green, int blue, int redChannel, int greenCh
   this->greenChannel = greenChannel;
 }
 
-ChannelRGB::ChannelRGB(const ChannelRGB& color){
+ChannelRGB::ChannelRGB(const ChannelRGB& color) {
   red = color.red;
   green = color.green;
   blue = color.blue;
@@ -130,5 +130,11 @@ rgb_color ChannelRGB::getColorForLED() {
   }
 
   return rgb_color(color0, color1, color2);
+
+}
+
+bool ChannelRGB::equalsColor(ChannelRGB other) {
+
+  return red == other.red && green == other.green && blue == other.blue;
 
 }

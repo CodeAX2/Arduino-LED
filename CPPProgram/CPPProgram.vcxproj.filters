@@ -13,30 +13,63 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\LED Modes">
+      <UniqueIdentifier>{e802bd75-2bfe-4c24-abd9-7d11775cf8a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\LED Modes">
+      <UniqueIdentifier>{0cb43ad1-7ae0-43fc-8410-c28b24f497e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Color Picker">
+      <UniqueIdentifier>{23695df3-1d10-4d80-afd9-6c11d64a0b7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Color Picker">
+      <UniqueIdentifier>{1dc7b3bd-61de-4a24-b33b-ffda3010e6a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Controllers">
+      <UniqueIdentifier>{08aca569-7b5f-4457-add3-d69e0236cd9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Controllers">
+      <UniqueIdentifier>{5738d2f5-2a8a-4b0e-939d-9e9abdb0cd94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ControllerApp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="AllStaticMode.cpp">
+      <Filter>Source Files\LED Modes</Filter>
     </ClCompile>
     <ClCompile Include="LEDMode.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\LED Modes</Filter>
     </ClCompile>
     <ClCompile Include="NoMode.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\LED Modes</Filter>
     </ClCompile>
-    <ClCompile Include="LEDModeHandler.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ColorPickerModule.cpp">
+      <Filter>Source Files\Color Picker</Filter>
+    </ClCompile>
+    <ClCompile Include="HSPicker.cpp">
+      <Filter>Source Files\Color Picker</Filter>
+    </ClCompile>
+    <ClCompile Include="VPicker.cpp">
+      <Filter>Source Files\Color Picker</Filter>
     </ClCompile>
     <ClCompile Include="ArduinoConnector.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Controllers</Filter>
     </ClCompile>
-    <ClCompile Include="AllStaticColorMode.cpp">
+    <ClCompile Include="ControllerApp.cpp">
+      <Filter>Source Files\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="LEDModeHandler.cpp">
+      <Filter>Source Files\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="TwoColorWaveMode.cpp">
+      <Filter>Source Files\LED Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="RainbowWaveMode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,25 +77,40 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ControllerApp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="AllStaticMode.h">
+      <Filter>Header Files\LED Modes</Filter>
     </ClInclude>
     <ClInclude Include="LEDMode.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\LED Modes</Filter>
     </ClInclude>
     <ClInclude Include="NoMode.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\LED Modes</Filter>
     </ClInclude>
-    <ClInclude Include="LEDModeHandler.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ColorPickerModule.h">
+      <Filter>Header Files\Color Picker</Filter>
+    </ClInclude>
+    <ClInclude Include="HSPicker.h">
+      <Filter>Header Files\Color Picker</Filter>
+    </ClInclude>
+    <ClInclude Include="VPicker.h">
+      <Filter>Header Files\Color Picker</Filter>
     </ClInclude>
     <ClInclude Include="ArduinoConnector.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Controllers</Filter>
     </ClInclude>
-    <ClInclude Include="AllStaticColorMode.h">
+    <ClInclude Include="ControllerApp.h">
+      <Filter>Header Files\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDModeHandler.h">
+      <Filter>Header Files\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="TwoColorWaveMode.h">
+      <Filter>Header Files\LED Modes</Filter>
+    </ClInclude>
+    <ClInclude Include="RainbowWaveMode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

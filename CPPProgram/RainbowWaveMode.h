@@ -1,9 +1,9 @@
 #pragma once
 #include "LEDMode.h"
-#include "ArduinoConnector.h"
 
 namespace cta {
-	class NoMode : public LEDMode {
+
+	class RainbowWaveMode : public LEDMode {
 
 	public:
 		static const std::string TYPE;
@@ -15,10 +15,10 @@ namespace cta {
 
 		Creates a new type of
 		LEDMode, with the type
-		set to "None".
+		set to "RainbowWave".
 
 		*/
-		NoMode(cta::ControllerApp* app);
+		RainbowWaveMode(cta::ControllerApp* app);
 
 		/*
 
@@ -62,11 +62,25 @@ namespace cta {
 		void deActivate() override;
 
 	protected:
-		tgui::Panel::Ptr noModePanel;
-		tgui::Label::Ptr arduinoStatusLabel;
+		tgui::Panel::Ptr rainbowWavePanel;
 
+		int offset = 0;
+		int timeSinceOffsetChange = 0;
+
+		int offsetChangeDelay = 50;
+		tgui::EditBox::Ptr delayEditBox;
+		tgui::Label::Ptr delayLabel;
+
+		int waveLength = 35;
+		tgui::EditBox::Ptr waveLengthEditBox;
+		tgui::Label::Ptr waveLabel;
+
+		bool needsUpdating = false;
+
+	protected:
+		void textChanged(tgui::Widget::Ptr widget, const std::string& signalName);
 
 
 	};
-}
 
+}

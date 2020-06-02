@@ -2,8 +2,12 @@
 #include <sstream>
 #include <SFML/System.hpp>
 
-cta::ArduinoConnector::ArduinoConnector(std::string comPort) {
+cta::ArduinoConnector::ArduinoConnector(std::string comPort, int numLEDs, int redChannel, int greenChannel, int blueChannel) {
 	this->comPort = comPort;
+	this->numLEDs = numLEDs;
+	this->redChannel = redChannel;
+	this->greenChannel = greenChannel;
+	this->blueChannel = blueChannel;
 }
 
 bool cta::ArduinoConnector::connect() {
@@ -11,18 +15,22 @@ bool cta::ArduinoConnector::connect() {
 	DCB dcbSerialParams = { 0 };
 	COMMTIMEOUTS timeouts = { 0 };
 
-	if (!openSerialPort(dcbSerialParams, timeouts)) {
+	if (!openSerialPort(dcbSerialParams, timeouts, false)) {
 		connected = false;
 		return false;
 	}
 
 	connected = true;
+
+	unsigned char startupData[] = { 0, numLEDs, numLEDs >> 8, redChannel, greenChannel, blueChannel };
+	sendDataSlow(startupData, 6, 0, 4);
+
 	return true;
 }
 
 
 
-bool cta::ArduinoConnector::openSerialPort(DCB& dcbSerialParams, COMMTIMEOUTS& timeouts) {
+bool cta::ArduinoConnector::openSerialPort(DCB& dcbSerialParams, COMMTIMEOUTS& timeouts, bool restartArduino) {
 
 	std::stringstream ss;
 	ss << "\\\\.\\";
@@ -51,6 +59,20 @@ bool cta::ArduinoConnector::openSerialPort(DCB& dcbSerialParams, COMMTIMEOUTS& t
 	dcbSerialParams.ByteSize = 8;
 	dcbSerialParams.StopBits = ONESTOPBIT;
 	dcbSerialParams.Parity = NOPARITY;
+
+	// Set restart on connect
+	if (restartArduino)
+		dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
+	else
+		dcbSerialParams.fDtrControl = DTR_CONTROL_DISABLE;
+
+	if (SetCommState(hSerial, &dcbSerialParams) == 0) {
+		CloseHandle(hSerial);
+		return false;
+	}
+
+	// Set restart on connect back to default
+	dcbSerialParams.fDtrControl = DTR_CONTROL_DISABLE;
 	if (SetCommState(hSerial, &dcbSerialParams) == 0) {
 		CloseHandle(hSerial);
 		return false;
@@ -70,6 +92,7 @@ bool cta::ArduinoConnector::openSerialPort(DCB& dcbSerialParams, COMMTIMEOUTS& t
 }
 
 void cta::ArduinoConnector::disconnect() {
+	connected = false;
 	CloseHandle(hSerial);
 }
 
@@ -77,12 +100,15 @@ bool cta::ArduinoConnector::isConnected() {
 	return connected;
 }
 
+bool cta::ArduinoConnector::isRestarting() {
+	return restarting;
+}
+
 int cta::ArduinoConnector::sendData(unsigned char* bytes, int amountToSend) {
 
 	DWORD amountSent;
 
 	if (!WriteFile(hSerial, bytes, amountToSend, &amountSent, NULL)) {
-		CloseHandle(hSerial);
 		return -1;
 	}
 	return (int)amountSent;
@@ -108,13 +134,72 @@ int cta::ArduinoConnector::sendDataSlow(unsigned char* toSendStart, int amountTo
 
 		amountSent += currentAmountSent;
 		delete[] currentByte;
-		if (msToSend != 0)
+		if (msToSend != 0) {
 			sf::sleep(sf::milliseconds(msToSend / (amountToSend / amountPerPackage + 1)));
+		}
 	}
+
 
 	return amountToSend;
 }
 
 void cta::ArduinoConnector::setCOMPort(std::string comPort) {
 	this->comPort = comPort;
+}
+
+bool cta::ArduinoConnector::restart() {
+
+	// Set values to communicate with other threads
+	restarting = true;
+
+	// Wait for a few ms to make sure the other threads know
+	// we are restarting
+	sf::sleep(sf::milliseconds(50));
+
+	// Close the handle on this thread
+	disconnect();
+
+	// Restart the arduino
+	DCB dcbSerialParams = { 0 };
+	COMMTIMEOUTS timeouts = { 0 };
+
+	if (!openSerialPort(dcbSerialParams, timeouts, true)) {
+		restarting = false;
+		return false;
+	}
+
+	// Wait for recieved byte from arduino
+	char tempChar;
+	DWORD noBytesRead;
+
+	if (ReadFile(hSerial, &tempChar, sizeof(tempChar), &noBytesRead, NULL) == 0) {
+		disconnect();
+		restarting = false;
+		return false;
+	}
+
+	// Disconnect from this thread
+	disconnect();
+
+	// Finished restarting successfully
+	restarting = false;
+	return true;
+}
+
+
+int cta::ArduinoConnector::getNumLEDs() {
+	return numLEDs;
+}
+
+int cta::ArduinoConnector::getRedChannel() {
+	return redChannel;
+}
+
+
+int cta::ArduinoConnector::getGreenChannel() {
+	return greenChannel;
+}
+
+int cta::ArduinoConnector::getBlueChannel() {
+	return blueChannel;
 }

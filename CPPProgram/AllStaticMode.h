@@ -1,9 +1,11 @@
 #pragma once
 #include "LEDMode.h"
-#include "ArduinoConnector.h"
+#include "ColorPickerModule.h"
 
 namespace cta {
-	class NoMode : public LEDMode {
+
+	class AllStaticMode :
+		public LEDMode {
 
 	public:
 		static const std::string TYPE;
@@ -15,10 +17,10 @@ namespace cta {
 
 		Creates a new type of
 		LEDMode, with the type
-		set to "None".
+		set to "AllStatic".
 
 		*/
-		NoMode(cta::ControllerApp* app);
+		AllStaticMode(cta::ControllerApp* app);
 
 		/*
 
@@ -62,11 +64,11 @@ namespace cta {
 		void deActivate() override;
 
 	protected:
-		tgui::Panel::Ptr noModePanel;
-		tgui::Label::Ptr arduinoStatusLabel;
-
+		tgui::Panel::Ptr allStaticPanel;
+		cta::ColorPickerModule* colorPicker;
 
 
 	};
+
 }
 

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <Windows.h>
 #include "ArduinoConnector.h"
+#include <TGUI/TGUI.hpp>
 
 #define WM_TRAY_ICON_MSG (WM_USER + 1)
 
@@ -44,6 +45,13 @@ namespace cta {
 		*/
 		sf::RenderWindow* getMainWindowPointer();
 
+		/*
+		
+		Returns a pointer to the gui associated
+		with the main window.
+		
+		*/
+		tgui::Gui* getWindowGUIPointer();
 
 		/*
 
@@ -67,14 +75,6 @@ namespace cta {
 
 		*/
 		ArduinoConnector* getArduinoConnector();
-
-		/*
-		
-		Change the current LED mode
-		to a new mode.
-		
-		*/
-		void setCurrentLEDMode(LEDMode* newMode);
 
 	private:
 		/*
@@ -109,6 +109,14 @@ namespace cta {
 
 		*/
 		void createMainWindow();
+
+		/*
+		
+		Creates all of the GUI widgets 
+		within the main window.
+		
+		*/
+		void setupMainWindowGUI();
 
 		/*
 
@@ -166,6 +174,7 @@ namespace cta {
 
 		sf::RenderWindow mainWindow;
 		bool windowIsVisible = true;
+		tgui::Gui mainWindowGUI;
 
 		cta::LEDMode* currentMode;
 
@@ -173,6 +182,7 @@ namespace cta {
 
 		sf::Font mainFont;
 
+		sf::Thread* restartThread;
+
 	};
 }
-

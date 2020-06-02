@@ -5,19 +5,30 @@
 #include <SFML/System.hpp>
 #include "NoMode.h"
 #include "AllStaticColorMode.h"
+#include <TGUI/Gui.hpp>
+#include "LEDModeHandler.h"
+#include "AllStaticMode.h"
+#include "TwoColorWaveMode.h"
+#include "ArduinoConnector.h"
+#include "RainbowWaveMode.h"
 
-cta::ControllerApp::ControllerApp() : arduinoConnector("COM4") {
+cta::ControllerApp::ControllerApp() : arduinoConnector("COM5", 35, 0, 1, 2) {
+
+	eventWindowHandle = NULL;
+	icon = NULL;
+	mailSlotHandle = NULL;
+	mutexHandle = NULL;
+	shellIconData = {};
+	eventWindowHandle = NULL;
+	icon = NULL;
 
 	mainFont.loadFromFile("Resources/OpenSans-Regular.ttf");
 
-
 	arduinoConnector.connect();
-	currentMode = new NoMode(this);
-	currentMode->activate();
 
-	new AllStaticColorMode(this);
-	new NoMode(this);
-	new NoMode(this);
+	restartThread = new sf::Thread([&]() {
+		arduinoConnector.restart();
+		});
 
 }
 
@@ -60,11 +71,17 @@ void cta::ControllerApp::begin() {
 	createEventWindow();
 	createShellIconData();
 	createMainWindow();
+	setupMainWindowGUI();
 	beginEventRenderLoop();
+
 }
 
 sf::RenderWindow* cta::ControllerApp::getMainWindowPointer() {
 	return &mainWindow;
+}
+
+tgui::Gui* cta::ControllerApp::getWindowGUIPointer() {
+	return &mainWindowGUI;
 }
 
 void cta::ControllerApp::claimMailSlotHandle() {
@@ -120,7 +137,7 @@ void cta::ControllerApp::createShellIconData() {
 }
 
 void cta::ControllerApp::createMainWindow() {
-	// Create the main SFML window
+	// Create the main SFML window and GUI
 
 	sf::ContextSettings settings;
 	settings.depthBits = 24;
@@ -129,15 +146,90 @@ void cta::ControllerApp::createMainWindow() {
 	settings.majorVersion = 4;
 	settings.minorVersion = 4;
 
-	mainWindow.create(sf::VideoMode(1280, 720), "Arduino LED Confiurator", sf::Style::Close | sf::Style::Resize | sf::Style::Titlebar, settings);
-	mainWindow.setFramerateLimit(120);
+	mainWindow.create(sf::VideoMode(1280, 720), "Arduino LED Confiurator", sf::Style::Close | sf::Style::Titlebar, settings);
+	mainWindow.setFramerateLimit(60);
+
+	// Enable TGUI on the main window
+	mainWindowGUI.setTarget(mainWindow);
 
 	// Set the window's icon
 	SendMessage(mainWindow.getSystemHandle(), WM_SETICON, ICON_BIG, (LPARAM)icon);
 }
 
-void cta::ControllerApp::beginEventRenderLoop() {
+void cta::ControllerApp::setupMainWindowGUI() {
 
+	tgui::Button::Ptr staticColorButton = tgui::Button::create();
+	staticColorButton->setSize("30%", "20%");
+	staticColorButton->setText("Static Color");
+	staticColorButton->setTextSize(24);
+	staticColorButton->connect("pressed", [&]() {
+		currentMode->deActivate();
+		currentMode = cta::LEDModeHandler::getModeByType("AllStatic");
+		currentMode->activate();
+		}
+	);
+
+	mainWindowGUI.add(staticColorButton, "staticColorButton");
+
+
+	tgui::Button::Ptr twoColorWaveButton = tgui::Button::create();
+	twoColorWaveButton->setSize("30%", "20%");
+	twoColorWaveButton->setText("Two Color Wave");
+	twoColorWaveButton->setTextSize(24);
+	twoColorWaveButton->setPosition(0, "20%");
+	twoColorWaveButton->connect("pressed", [&]() {
+		currentMode->deActivate();
+		currentMode = cta::LEDModeHandler::getModeByType("TwoColorWave");
+		currentMode->activate();
+		}
+	);
+
+	mainWindowGUI.add(twoColorWaveButton, "twoColorWaveButton");
+
+
+	tgui::Button::Ptr rainbowWaveButton = tgui::Button::create();
+	rainbowWaveButton->setSize("30%", "20%");
+	rainbowWaveButton->setText("Rainbow Wave");
+	rainbowWaveButton->setTextSize(24);
+	rainbowWaveButton->setPosition(0, "40%");
+	rainbowWaveButton->connect("pressed", [&]() {
+		currentMode->deActivate();
+		currentMode = cta::LEDModeHandler::getModeByType("RainbowWave");
+		currentMode->activate();
+		}
+	);
+
+	mainWindowGUI.add(rainbowWaveButton, "rainbowWaveButton");
+
+
+	tgui::Button::Ptr restartButton = tgui::Button::create();
+	restartButton->setSize("30%", "20%");
+	restartButton->setText("Restart Arduino");
+	restartButton->setTextSize(24);
+	restartButton->setPosition(0, "60%");
+	restartButton->connect("pressed", [&]() {
+		currentMode->deActivate();
+		restartThread->wait();
+		arduinoConnector.disconnect();
+		restartThread->launch();
+		currentMode->activate();
+		}
+	);
+
+	mainWindowGUI.add(restartButton, "restartButton");
+
+	// Create the LEDModes
+	new NoMode(this);
+	new AllStaticMode(this);
+	new TwoColorWaveMode(this);
+	new RainbowWaveMode(this);
+
+	currentMode = cta::LEDModeHandler::getModeByType("None");
+	currentMode->activate();
+
+}
+
+void cta::ControllerApp::beginEventRenderLoop() {
 
 	sf::Clock timer;
 	sf::Time prev = timer.getElapsedTime();
@@ -176,20 +268,16 @@ void cta::ControllerApp::beginEventRenderLoop() {
 				sf::Vector2f center;
 				sf::Vector2f size;
 
-				center.x = mainWindow.getSize().x / 2;
-				center.y = mainWindow.getSize().y / 2;
+				center.x = mainWindow.getSize().x / 2.f;
+				center.y = mainWindow.getSize().y / 2.f;
 
 				size = sf::Vector2f(mainWindow.getSize());
-
-				currentMode->handleEvent(e);
-				// The current mode can use the view
-				// as the old window size
 
 				sf::View newView(center, size);
 				mainWindow.setView(newView);
 
 			} else {
-				currentMode->handleEvent(e);
+				mainWindowGUI.handleEvent(e);
 			}
 		}
 
@@ -223,7 +311,8 @@ void cta::ControllerApp::beginEventRenderLoop() {
 
 void cta::ControllerApp::tick(int dt) {
 
-	if (!arduinoConnector.isConnected()) {
+	// Attempt to reconnect the arduino
+	if (!arduinoConnector.isConnected() && !arduinoConnector.isRestarting()) {
 		arduinoConnector.connect();
 	}
 
@@ -233,7 +322,7 @@ void cta::ControllerApp::tick(int dt) {
 
 void cta::ControllerApp::draw(int dt) {
 
-	currentMode->draw(dt);
+	mainWindowGUI.draw();
 
 }
 
@@ -353,10 +442,4 @@ sf::Font& cta::ControllerApp::getMainFont() {
 
 cta::ArduinoConnector* cta::ControllerApp::getArduinoConnector() {
 	return &arduinoConnector;
-}
-
-void cta::ControllerApp::setCurrentLEDMode(cta::LEDMode* newMode) {
-	currentMode->deActivate();
-	currentMode = newMode;
-	currentMode->activate();
 }

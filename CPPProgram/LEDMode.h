@@ -21,7 +21,7 @@ namespace cta {
 		Create a new LEDMode with a given type
 
 		*/
-		LEDMode(ControllerApp* app, std::string type, sf::RenderWindow* window, ArduinoConnector* arduinoConnector);
+		LEDMode(ControllerApp* app, std::string type, sf::RenderWindow* window, tgui::Gui* windowGui, ArduinoConnector* arduinoConnector);
 
 		/*
 
@@ -61,26 +61,27 @@ namespace cta {
 		std::string getType();
 
 		/*
-		
+
 		Called when this mode becomes
 		the currently active mode.
-		
+
 		*/
 		virtual void activate();
 
 
 		/*
-		
+
 		Called when this mode
 		is no longer the currently
 		active mode.
-		
+
 		*/
 		virtual void deActivate();
 
 	protected:
 		std::string type;
 		sf::RenderWindow* window;
+		tgui::Gui* windowGui;
 		ArduinoConnector* arduinoConnector;
 		ControllerApp* app;
 

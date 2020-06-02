@@ -1,10 +1,11 @@
 #include "LEDMode.h"
 #include "LEDModeHandler.h"
 
-cta::LEDMode::LEDMode(cta::ControllerApp* app, std::string type, sf::RenderWindow* window, cta::ArduinoConnector* arduinoConnector) {
+cta::LEDMode::LEDMode(cta::ControllerApp* app, std::string type, sf::RenderWindow* window, tgui::Gui* windowGui, cta::ArduinoConnector* arduinoConnector) {
 	this->app = app;
 	this->type = type;
 	this->window = window;
+	this->windowGui = windowGui;
 	this->arduinoConnector = arduinoConnector;
 	cta::LEDModeHandler::addMode(this);
 }

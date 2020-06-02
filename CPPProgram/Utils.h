@@ -21,6 +21,8 @@ namespace cta {
 		*/
 		static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+		static void colorToHSV(sf::Color color, float* hsvArr);
+
 	public:
 		static cta::ControllerApp* app;
 
