@@ -7,7 +7,7 @@ RainbowColorWaveMode::RainbowColorWaveMode() : ArduinoMode(ArduinoMode::ModeID::
 void RainbowColorWaveMode::handleData(byte data) {
 
 	if (doneReadingData) {
-		Handler::getModeByID(ArduinoMode::ModeID::NO_MODE);
+		Handler::getModeByID(ArduinoMode::ModeID::NO_MODE)->handleData(data);
 		return;
 	}
 
@@ -43,7 +43,11 @@ void RainbowColorWaveMode::loop() {
 		float hue = (i % rainbowWaveLength) / (float)(rainbowWaveLength);
 		hue += ((float)msSinceRainbowWaveStart / rainbowWaveMSDelay) * huePerLED;
 		Utils::HSVtoRGB(hue, 1, 1, rainR, rainG, rainB);
-		colors[i] = ChannelRGB(rainR, rainG, rainB).getColorForLED();
+
+		int rChannel, gChannel, bChannel;
+		Handler::getRGBChannels(&rChannel, &gChannel, &bChannel);
+
+		colors[i] = ChannelRGB(rainR, rainG, rainB, rChannel, gChannel, bChannel).getColorForLED();
 	}
 
 	Handler::getLEDStrip()->write(colors, Handler::getNumLEDs());

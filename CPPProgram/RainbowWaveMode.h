@@ -1,10 +1,9 @@
 #pragma once
 #include "LEDMode.h"
-#include "ColorPickerModule.h"
 
 namespace cta {
 
-	class TwoColorWaveMode : public LEDMode {
+	class RainbowWaveMode : public LEDMode {
 
 	public:
 		static const std::string TYPE;
@@ -16,10 +15,10 @@ namespace cta {
 
 		Creates a new type of
 		LEDMode, with the type
-		set to "TwoColorWave".
+		set to "RainbowWave".
 
 		*/
-		TwoColorWaveMode(cta::ControllerApp* app);
+		RainbowWaveMode(cta::ControllerApp* app);
 
 		/*
 
@@ -63,7 +62,7 @@ namespace cta {
 		void deActivate() override;
 
 	protected:
-		tgui::Panel::Ptr twoColorWavePanel;
+		tgui::Panel::Ptr rainbowWavePanel;
 
 		int offset = 0;
 		int timeSinceOffsetChange = 0;
@@ -72,22 +71,11 @@ namespace cta {
 		tgui::EditBox::Ptr delayEditBox;
 		tgui::Label::Ptr delayLabel;
 
-		int waveLength = 7;
+		int waveLength = 35;
 		tgui::EditBox::Ptr waveLengthEditBox;
 		tgui::Label::Ptr waveLabel;
 
-		sf::Color color1, color2;
 		bool needsUpdating = false;
-
-		tgui::Button::Ptr color1Button;
-		tgui::Button::Ptr color2Button;
-		tgui::Panel::Ptr color1Display;
-		tgui::Panel::Ptr color2Display;
-
-		cta::ColorPickerModule* colorPicker;
-		sf::Color* changingColor;
-		tgui::Panel::Ptr changingDisplayColor;
-		tgui::Button::Ptr confirmColorButton;
 
 	protected:
 		void textChanged(tgui::Widget::Ptr widget, const std::string& signalName);

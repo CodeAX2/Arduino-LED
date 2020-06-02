@@ -153,6 +153,7 @@
     <ClCompile Include="LEDMode.cpp" />
     <ClCompile Include="LEDModeHandler.cpp" />
     <ClCompile Include="NoMode.cpp" />
+    <ClCompile Include="RainbowWaveMode.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="TwoColorWaveMode.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="LEDMode.h" />
     <ClInclude Include="LEDModeHandler.h" />
     <ClInclude Include="NoMode.h" />
+    <ClInclude Include="RainbowWaveMode.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="TwoColorWaveMode.h" />
     <ClInclude Include="Utils.h" />

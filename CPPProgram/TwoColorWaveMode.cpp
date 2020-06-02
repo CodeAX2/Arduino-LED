@@ -28,7 +28,6 @@ cta::TwoColorWaveMode::TwoColorWaveMode(cta::ControllerApp* app) :
 		colorPicker->show();
 		confirmColorButton->setVisible(true);
 		color2Button->setEnabled(false);
-		sendData = false;
 		}
 	);
 	twoColorWavePanel->add(color1Button, "color1Button");
@@ -45,7 +44,6 @@ cta::TwoColorWaveMode::TwoColorWaveMode(cta::ControllerApp* app) :
 		colorPicker->show();
 		confirmColorButton->setVisible(true);
 		color1Button->setEnabled(false);
-		sendData = false;
 		}
 	);
 	twoColorWavePanel->add(color2Button, "color2Button");
@@ -81,7 +79,7 @@ cta::TwoColorWaveMode::TwoColorWaveMode(cta::ControllerApp* app) :
 		confirmColorButton->setVisible(false);
 		color1Button->setEnabled(true);
 		color2Button->setEnabled(true);
-		sendData = true;
+		needsUpdating = true;
 		}
 	);
 	confirmColorButton->setVisible(false);
@@ -140,15 +138,13 @@ void cta::TwoColorWaveMode::draw(int dt) {
 
 void cta::TwoColorWaveMode::tick(int dt) {
 
-	if ((color1 != prevColor1 || color2 != prevColor2 || needsUpdating) && arduinoConnector->isConnected() && !arduinoConnector->isRestarting()) {
+	if (needsUpdating && arduinoConnector->isConnected() && !arduinoConnector->isRestarting()) {
 		unsigned char bytesToSend[] = { 6, color1.r, color1.g, color1.b, color2.r, color2.g, color2.b, offsetChangeDelay, offsetChangeDelay >> 8, waveLength, waveLength >> 8 };
 		arduinoConnector->sendDataSlow(bytesToSend, 11, 0, 4);
 
 		//unsigned char bytesToSend[] = { 7, 50, 0, 35, 0 };
 		//arduinoConnector->sendDataSlow(bytesToSend, 5, 0, 8);
 
-		prevColor1 = color1;
-		prevColor2 = color2;
 		needsUpdating = false;
 
 	}

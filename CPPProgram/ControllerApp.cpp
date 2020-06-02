@@ -10,6 +10,7 @@
 #include "AllStaticMode.h"
 #include "TwoColorWaveMode.h"
 #include "ArduinoConnector.h"
+#include "RainbowWaveMode.h"
 
 cta::ControllerApp::ControllerApp() : arduinoConnector("COM5", 35, 0, 1, 2) {
 
@@ -186,11 +187,26 @@ void cta::ControllerApp::setupMainWindowGUI() {
 	mainWindowGUI.add(twoColorWaveButton, "twoColorWaveButton");
 
 
+	tgui::Button::Ptr rainbowWaveButton = tgui::Button::create();
+	rainbowWaveButton->setSize("30%", "20%");
+	rainbowWaveButton->setText("Rainbow Wave");
+	rainbowWaveButton->setTextSize(24);
+	rainbowWaveButton->setPosition(0, "40%");
+	rainbowWaveButton->connect("pressed", [&]() {
+		currentMode->deActivate();
+		currentMode = cta::LEDModeHandler::getModeByType("RainbowWave");
+		currentMode->activate();
+		}
+	);
+
+	mainWindowGUI.add(rainbowWaveButton, "rainbowWaveButton");
+
+
 	tgui::Button::Ptr restartButton = tgui::Button::create();
 	restartButton->setSize("30%", "20%");
 	restartButton->setText("Restart Arduino");
 	restartButton->setTextSize(24);
-	restartButton->setPosition(0, "40%");
+	restartButton->setPosition(0, "60%");
 	restartButton->connect("pressed", [&]() {
 		currentMode->deActivate();
 		restartThread->wait();
@@ -206,6 +222,7 @@ void cta::ControllerApp::setupMainWindowGUI() {
 	new NoMode(this);
 	new AllStaticMode(this);
 	new TwoColorWaveMode(this);
+	new RainbowWaveMode(this);
 
 	currentMode = cta::LEDModeHandler::getModeByType("None");
 	currentMode->activate();

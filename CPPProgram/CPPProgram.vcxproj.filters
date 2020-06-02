@@ -69,6 +69,9 @@
     <ClCompile Include="TwoColorWaveMode.cpp">
       <Filter>Source Files\LED Modes</Filter>
     </ClCompile>
+    <ClCompile Include="RainbowWaveMode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="TwoColorWaveMode.h">
       <Filter>Header Files\LED Modes</Filter>
+    </ClInclude>
+    <ClInclude Include="RainbowWaveMode.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

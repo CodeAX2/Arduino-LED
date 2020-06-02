@@ -87,10 +87,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\ArduinoProgram;$(ProjectDir)..\..\..\..\Documents\Arduino\libraries\MemoryFree;Z:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\EEPROM\src;$(ProjectDir)..\..\..\..\Documents\Arduino\libraries\PololuLedStrip;Z:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;Z:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;Z:\Program Files (x86)\Arduino\hardware\tools\avr\\lib\gcc\avr\7.3.0\include;Z:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include;Z:\Program Files (x86)\Arduino\hardware\tools\avr\\lib\gcc\avr\7.3.0\include;Z:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include-fixed;Z:\Program Files (x86)\Arduino\hardware\tools\avr\avr\include\avr;Z:\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;Z:\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.2\include;Z:\Program Files (x86)\Arduino\hardware\tools\avr\lib\gcc\avr\4.9.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>$(ProjectDir)__vm\.ArduinoProgram.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__AVR_atmega328p__;__AVR_ATmega328P__;__AVR_ATmega328p__;_VMDEBUG=1;F_CPU=16000000L;ARDUINO=108010;ARDUINO_AVR_NANO;ARDUINO_ARCH_AVR;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -141,4 +141,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties config.Debug.customdebug_nano_atmega328_debugger_type="universal" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
