@@ -4,7 +4,7 @@
 
 namespace cta {
 
-	class SplatoonMode : public LEDMode {
+	class TwoColorWaveMode : public LEDMode {
 
 	public:
 		static const std::string TYPE;
@@ -16,10 +16,10 @@ namespace cta {
 
 		Creates a new type of
 		LEDMode, with the type
-		set to "Splatoon".
+		set to "TwoColorWave".
 
 		*/
-		SplatoonMode(cta::ControllerApp* app);
+		TwoColorWaveMode(cta::ControllerApp* app);
 
 		/*
 
@@ -63,7 +63,7 @@ namespace cta {
 		void deActivate() override;
 
 	protected:
-		tgui::Panel::Ptr splatoonPanel;
+		tgui::Panel::Ptr twoColorWavePanel;
 
 		int offset = 0;
 		int timeSinceOffsetChange = 0;
@@ -79,8 +79,6 @@ namespace cta {
 		sf::Color color1, color2;
 		sf::Color prevColor1, prevColor2;
 		bool needsUpdating = false;
-		int msSinceLastUpdate = 0;
-
 
 		tgui::Button::Ptr color1Button;
 		tgui::Button::Ptr color2Button;

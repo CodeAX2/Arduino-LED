@@ -8,7 +8,7 @@
 #include <TGUI/Gui.hpp>
 #include "LEDModeHandler.h"
 #include "AllStaticMode.h"
-#include "SplatoonMode.h"
+#include "TwoColorWaveMode.h"
 #include "ArduinoConnector.h"
 
 cta::ControllerApp::ControllerApp() : arduinoConnector("COM5", 35, 0, 1, 2) {
@@ -171,19 +171,19 @@ void cta::ControllerApp::setupMainWindowGUI() {
 	mainWindowGUI.add(staticColorButton, "staticColorButton");
 
 
-	tgui::Button::Ptr splatoonButton = tgui::Button::create();
-	splatoonButton->setSize("30%", "20%");
-	splatoonButton->setText("Splatoon");
-	splatoonButton->setTextSize(24);
-	splatoonButton->setPosition(0, "20%");
-	splatoonButton->connect("pressed", [&]() {
+	tgui::Button::Ptr twoColorWaveButton = tgui::Button::create();
+	twoColorWaveButton->setSize("30%", "20%");
+	twoColorWaveButton->setText("Two Color Wave");
+	twoColorWaveButton->setTextSize(24);
+	twoColorWaveButton->setPosition(0, "20%");
+	twoColorWaveButton->connect("pressed", [&]() {
 		currentMode->deActivate();
-		currentMode = cta::LEDModeHandler::getModeByType("Splatoon");
+		currentMode = cta::LEDModeHandler::getModeByType("TwoColorWave");
 		currentMode->activate();
 		}
 	);
 
-	mainWindowGUI.add(splatoonButton, "splatoonButton");
+	mainWindowGUI.add(twoColorWaveButton, "twoColorWaveButton");
 
 
 	tgui::Button::Ptr restartButton = tgui::Button::create();
@@ -192,9 +192,11 @@ void cta::ControllerApp::setupMainWindowGUI() {
 	restartButton->setTextSize(24);
 	restartButton->setPosition(0, "40%");
 	restartButton->connect("pressed", [&]() {
+		currentMode->deActivate();
 		restartThread->wait();
 		arduinoConnector.disconnect();
 		restartThread->launch();
+		currentMode->activate();
 		}
 	);
 
@@ -203,7 +205,7 @@ void cta::ControllerApp::setupMainWindowGUI() {
 	// Create the LEDModes
 	new NoMode(this);
 	new AllStaticMode(this);
-	new SplatoonMode(this);
+	new TwoColorWaveMode(this);
 
 	currentMode = cta::LEDModeHandler::getModeByType("None");
 	currentMode->activate();
@@ -229,8 +231,7 @@ void cta::ControllerApp::beginEventRenderLoop() {
 			if (e.type == sf::Event::Closed) {
 				mainWindow.setVisible(false);
 				windowIsVisible = false;
-			}
-			else if (e.type == sf::Event::Resized) {
+			} else if (e.type == sf::Event::Resized) {
 
 				sf::Vector2u newSize = mainWindow.getSize();
 				bool smallerThanMinimumSize = false;
@@ -258,8 +259,7 @@ void cta::ControllerApp::beginEventRenderLoop() {
 				sf::View newView(center, size);
 				mainWindow.setView(newView);
 
-			}
-			else {
+			} else {
 				mainWindowGUI.handleEvent(e);
 			}
 		}

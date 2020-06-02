@@ -154,7 +154,7 @@
     <ClCompile Include="LEDModeHandler.cpp" />
     <ClCompile Include="NoMode.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="SplatoonMode.cpp" />
+    <ClCompile Include="TwoColorWaveMode.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="VPicker.cpp" />
   </ItemGroup>
@@ -168,7 +168,7 @@
     <ClInclude Include="LEDModeHandler.h" />
     <ClInclude Include="NoMode.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SplatoonMode.h" />
+    <ClInclude Include="TwoColorWaveMode.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VPicker.h" />
   </ItemGroup>

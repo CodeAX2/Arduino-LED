@@ -1,20 +1,20 @@
-#include "SplatoonMode.h"
+#include "TwoColorWaveMode.h"
 #include <iostream>
 #include "LEDModeHandler.h"
 #include <TGUI/TGUI.hpp>
 #include <TGUI/Widget.hpp>
 #include "ColorPickerModule.h"
 
-const std::string cta::SplatoonMode::TYPE = "Splatoon";
+const std::string cta::TwoColorWaveMode::TYPE = "TwoColorWave";
 
-cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
+cta::TwoColorWaveMode::TwoColorWaveMode(cta::ControllerApp* app) :
 	cta::LEDMode(app, TYPE, app->getMainWindowPointer(), app->getWindowGUIPointer(), app->getArduinoConnector()) {
 
-	splatoonPanel = tgui::Panel::create();
-	splatoonPanel->setSize("70%", "100%");
-	splatoonPanel->setPosition("30%", "0%");
-	splatoonPanel->getSharedRenderer()->setBackgroundColor(sf::Color(35, 35, 35, 255));
-	windowGui->add(splatoonPanel, "splatoonPanel");
+	twoColorWavePanel = tgui::Panel::create();
+	twoColorWavePanel->setSize("70%", "100%");
+	twoColorWavePanel->setPosition("30%", "0%");
+	twoColorWavePanel->getSharedRenderer()->setBackgroundColor(sf::Color(35, 35, 35, 255));
+	windowGui->add(twoColorWavePanel, "twoColorWavePanel");
 
 	color1Button = tgui::Button::create();
 	color1Button->setSize("20%", "10%");
@@ -31,7 +31,7 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 		sendData = false;
 		}
 	);
-	splatoonPanel->add(color1Button, "color1Button");
+	twoColorWavePanel->add(color1Button, "color1Button");
 
 	color2Button = tgui::Button::create();
 	color2Button->setSize("20%", "10%");
@@ -48,10 +48,10 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 		sendData = false;
 		}
 	);
-	splatoonPanel->add(color2Button, "color2Button");
+	twoColorWavePanel->add(color2Button, "color2Button");
 
 
-	colorPicker = new cta::ColorPickerModule(splatoonPanel, "100%", "100%", 0, "15%");
+	colorPicker = new cta::ColorPickerModule(twoColorWavePanel, "100%", "100%", 0, "15%");
 	colorPicker->hide();
 
 	color1 = sf::Color(1, 255, 59);
@@ -61,13 +61,13 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 	color1Display->setSize("20%", "2%");
 	color1Display->setPosition("50% - width - 5", "10% + 15 + 2");
 	color1Display->getRenderer()->setBackgroundColor(color1);
-	splatoonPanel->add(color1Display, "color1Display");
+	twoColorWavePanel->add(color1Display, "color1Display");
 
 	color2Display = tgui::Panel::create();
 	color2Display->setSize("20%", "2%");
 	color2Display->setPosition("50% + 5", "10% + 15 + 2");
 	color2Display->getRenderer()->setBackgroundColor(color2);
-	splatoonPanel->add(color2Display, "color2Display");
+	twoColorWavePanel->add(color2Display, "color2Display");
 
 	confirmColorButton = tgui::Button::create();
 	confirmColorButton->setSize("20%", "10%");
@@ -85,7 +85,7 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 		}
 	);
 	confirmColorButton->setVisible(false);
-	splatoonPanel->add(confirmColorButton, "confirmColorButton");
+	twoColorWavePanel->add(confirmColorButton, "confirmColorButton");
 
 	delayLabel = tgui::Label::create();
 	delayLabel->setSize("15%", "10%");
@@ -94,7 +94,7 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 	delayLabel->setTextSize(24);
 	delayLabel->setText("Delay Time");
 	delayLabel->setPosition("50% - width - 5", "100% - height - 15 - 5% - 5");
-	splatoonPanel->add(delayLabel, "delayLabel");
+	twoColorWavePanel->add(delayLabel, "delayLabel");
 
 
 	delayEditBox = tgui::EditBox::create();
@@ -105,8 +105,8 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 	delayEditBox->setText("50");
 	delayEditBox->setCaretPosition(0);
 	delayEditBox->setMaximumCharacters(5);
-	delayEditBox->connect("TextChanged", &cta::SplatoonMode::textChanged, this);
-	splatoonPanel->add(delayEditBox, "delayEditBox");
+	delayEditBox->connect("TextChanged", &cta::TwoColorWaveMode::textChanged, this);
+	twoColorWavePanel->add(delayEditBox, "delayEditBox");
 
 	waveLabel = tgui::Label::create();
 	waveLabel->setSize("15%", "10%");
@@ -115,7 +115,7 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 	waveLabel->setTextSize(24);
 	waveLabel->setText("Wave Length");
 	waveLabel->setPosition("50% + 5", "100% - height - 15 - 5% - 5");
-	splatoonPanel->add(waveLabel, "waveLabel");
+	twoColorWavePanel->add(waveLabel, "waveLabel");
 
 
 	waveLengthEditBox = tgui::EditBox::create();
@@ -126,29 +126,22 @@ cta::SplatoonMode::SplatoonMode(cta::ControllerApp* app) :
 	waveLengthEditBox->setText("7");
 	waveLengthEditBox->setCaretPosition(0);
 	waveLengthEditBox->setMaximumCharacters(4);
-	waveLengthEditBox->connect("TextChanged", &cta::SplatoonMode::textChanged, this);
-	splatoonPanel->add(waveLengthEditBox, "waveLengthEditBox");
+	waveLengthEditBox->connect("TextChanged", &cta::TwoColorWaveMode::textChanged, this);
+	twoColorWavePanel->add(waveLengthEditBox, "waveLengthEditBox");
 
 	this->deActivate();
 
 }
 
-void cta::SplatoonMode::draw(int dt) {
+void cta::TwoColorWaveMode::draw(int dt) {
 
 
 }
 
-void cta::SplatoonMode::tick(int dt) {
+void cta::TwoColorWaveMode::tick(int dt) {
 
-	int offsetToSend = offsetChangeDelay;
-	if (offsetToSend < 10) offsetToSend = 10;
-
-	int waveLengthToSend = waveLength;
-
-	msSinceLastUpdate += dt;
-
-	if ((color1 != prevColor1 || color2 != prevColor2 || needsUpdating) && msSinceLastUpdate >= 200) {
-		unsigned char bytesToSend[] = { 6, color1.r, color1.g, color1.b, color2.r, color2.g, color2.b, offsetToSend, offsetToSend >> 8, waveLengthToSend, waveLengthToSend >> 8 };
+	if ((color1 != prevColor1 || color2 != prevColor2 || needsUpdating) && arduinoConnector->isConnected() && !arduinoConnector->isRestarting()) {
+		unsigned char bytesToSend[] = { 6, color1.r, color1.g, color1.b, color2.r, color2.g, color2.b, offsetChangeDelay, offsetChangeDelay >> 8, waveLength, waveLength >> 8 };
 		arduinoConnector->sendDataSlow(bytesToSend, 11, 0, 4);
 
 		//unsigned char bytesToSend[] = { 7, 50, 0, 35, 0 };
@@ -157,28 +150,27 @@ void cta::SplatoonMode::tick(int dt) {
 		prevColor1 = color1;
 		prevColor2 = color2;
 		needsUpdating = false;
-		msSinceLastUpdate = 0;
 
 	}
 
 
 }
 
-void cta::SplatoonMode::handleEvent(sf::Event e) {
+void cta::TwoColorWaveMode::handleEvent(sf::Event e) {
 
 
 }
 
-void cta::SplatoonMode::activate() {
-	splatoonPanel->setVisible(true);
+void cta::TwoColorWaveMode::activate() {
+	twoColorWavePanel->setVisible(true);
 	needsUpdating = true;
 }
 
-void cta::SplatoonMode::deActivate() {
-	splatoonPanel->setVisible(false);
+void cta::TwoColorWaveMode::deActivate() {
+	twoColorWavePanel->setVisible(false);
 }
 
-void cta::SplatoonMode::textChanged(tgui::Widget::Ptr widget, const std::string& signalName) {
+void cta::TwoColorWaveMode::textChanged(tgui::Widget::Ptr widget, const std::string& signalName) {
 	std::string widgetName = widget->getWidgetName().toAnsiString();
 
 	// Update speed
@@ -186,8 +178,7 @@ void cta::SplatoonMode::textChanged(tgui::Widget::Ptr widget, const std::string&
 		if (delayEditBox->getText().toAnsiString() != "")
 			offsetChangeDelay = std::stoi(delayEditBox->getText().toAnsiString());
 
-	}
-	else if (widgetName == "waveLengthEditBox") {
+	} else if (widgetName == "waveLengthEditBox") {
 		if (waveLengthEditBox->getText().toAnsiString() != "")
 			waveLength = std::stoi(waveLengthEditBox->getText().toAnsiString());
 	}
