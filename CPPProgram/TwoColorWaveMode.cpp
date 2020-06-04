@@ -142,9 +142,6 @@ void cta::TwoColorWaveMode::tick(int dt) {
 		unsigned char bytesToSend[] = { 6, color1.r, color1.g, color1.b, color2.r, color2.g, color2.b, offsetChangeDelay, offsetChangeDelay >> 8, waveLength, waveLength >> 8 };
 		arduinoConnector->sendDataSlow(bytesToSend, 11, 0, 4);
 
-		//unsigned char bytesToSend[] = { 7, 50, 0, 35, 0 };
-		//arduinoConnector->sendDataSlow(bytesToSend, 5, 0, 8);
-
 		needsUpdating = false;
 
 	}

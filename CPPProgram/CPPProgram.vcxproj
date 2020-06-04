@@ -148,6 +148,7 @@
     <ClCompile Include="AllStaticMode.cpp" />
     <ClCompile Include="ArduinoConnector.cpp" />
     <ClCompile Include="ColorPickerModule.cpp" />
+    <ClCompile Include="GradientMode.cpp" />
     <ClCompile Include="HSPicker.cpp" />
     <ClCompile Include="ControllerApp.cpp" />
     <ClCompile Include="LEDMode.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="AllStaticMode.h" />
     <ClInclude Include="ArduinoConnector.h" />
     <ClInclude Include="ColorPickerModule.h" />
+    <ClInclude Include="GradientMode.h" />
     <ClInclude Include="HSPicker.h" />
     <ClInclude Include="ControllerApp.h" />
     <ClInclude Include="LEDMode.h" />

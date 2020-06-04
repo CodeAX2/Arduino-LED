@@ -14,6 +14,8 @@ private:
 	bool doneReadingData = false;
 	int rainbowWaveLength = 0;
 	int rainbowWaveMSDelay = 0;
+	int sat = 255;
+	int val = 255;
 	unsigned long msSinceRainbowWaveStart = 0;
 
 };

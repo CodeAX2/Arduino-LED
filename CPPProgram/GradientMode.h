@@ -1,9 +1,10 @@
 #pragma once
 #include "LEDMode.h"
+#include "ColorPickerModule.h"
 
 namespace cta {
 
-	class RainbowWaveMode : public LEDMode {
+	class GradientMode : public LEDMode {
 
 	public:
 		static const std::string TYPE;
@@ -15,10 +16,10 @@ namespace cta {
 
 		Creates a new type of
 		LEDMode, with the type
-		set to "RainbowWave".
+		set to "Gradient".
 
 		*/
-		RainbowWaveMode(cta::ControllerApp* app);
+		GradientMode(cta::ControllerApp* app);
 
 		/*
 
@@ -62,31 +63,27 @@ namespace cta {
 		void deActivate() override;
 
 	protected:
-		tgui::Panel::Ptr rainbowWavePanel;
+		tgui::Panel::Ptr gradientPanel;
+		tgui::Panel::Ptr colorListPanel;
+		tgui::Button::Ptr addColorButton;
+		tgui::Button::Ptr removeColorButton;
+		tgui::Button::Ptr confirmGradientButton;
 
-		int offset = 0;
-		int timeSinceOffsetChange = 0;
+		cta::ColorPickerModule* colorPicker;
+		tgui::EditBox::Ptr fadeEditBox;
+		tgui::Label::Ptr fadeLabel;
 
-		int offsetChangeDelay = 50;
-		tgui::EditBox::Ptr delayEditBox;
-		tgui::Label::Ptr delayLabel;
+		std::vector<sf::Color> colors;
+		std::vector<int> fadeTimes;
+		int selectedColorIndex = -1;
 
-		int waveLength = 35;
-		tgui::EditBox::Ptr waveLengthEditBox;
-		tgui::Label::Ptr waveLabel;
-
-		int saturationValue = 255;
-		tgui::EditBox::Ptr saturationEditBox;
-		tgui::Label::Ptr saturationLabel;
-
-		int brightnessValue = 255;
-		tgui::EditBox::Ptr brightnessEditBox;
-		tgui::Label::Ptr brightnessLabel;
-
-		bool needsUpdating = false;
 
 	protected:
 		void textChanged(tgui::Widget::Ptr widget, const std::string& signalName);
+		void addColorToList();
+		void removeColorFromList();
+		void colorSelected(tgui::Widget::Ptr widget, const std::string& signalName);
+		void confirmData();
 
 
 	};

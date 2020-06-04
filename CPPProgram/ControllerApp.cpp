@@ -11,6 +11,7 @@
 #include "TwoColorWaveMode.h"
 #include "ArduinoConnector.h"
 #include "RainbowWaveMode.h"
+#include "GradientMode.h"
 
 cta::ControllerApp::ControllerApp() : arduinoConnector("COM5", 35, 0, 1, 2) {
 
@@ -201,12 +202,26 @@ void cta::ControllerApp::setupMainWindowGUI() {
 
 	mainWindowGUI.add(rainbowWaveButton, "rainbowWaveButton");
 
+	tgui::Button::Ptr gradientButton = tgui::Button::create();
+	gradientButton->setSize("30%", "20%");
+	gradientButton->setText("Gradient");
+	gradientButton->setTextSize(24);
+	gradientButton->setPosition(0, "60%");
+	gradientButton->connect("pressed", [&]() {
+		currentMode->deActivate();
+		currentMode = cta::LEDModeHandler::getModeByType("Gradient");
+		currentMode->activate();
+		}
+	);
+
+	mainWindowGUI.add(gradientButton, "gradientButton");
+
 
 	tgui::Button::Ptr restartButton = tgui::Button::create();
 	restartButton->setSize("30%", "20%");
 	restartButton->setText("Restart Arduino");
 	restartButton->setTextSize(24);
-	restartButton->setPosition(0, "60%");
+	restartButton->setPosition(0, "80%");
 	restartButton->connect("pressed", [&]() {
 		currentMode->deActivate();
 		restartThread->wait();
@@ -223,6 +238,7 @@ void cta::ControllerApp::setupMainWindowGUI() {
 	new AllStaticMode(this);
 	new TwoColorWaveMode(this);
 	new RainbowWaveMode(this);
+	new GradientMode(this);
 
 	currentMode = cta::LEDModeHandler::getModeByType("None");
 	currentMode->activate();

@@ -70,7 +70,10 @@
       <Filter>Source Files\LED Modes</Filter>
     </ClCompile>
     <ClCompile Include="RainbowWaveMode.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\LED Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="GradientMode.cpp">
+      <Filter>Source Files\LED Modes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,7 +114,10 @@
       <Filter>Header Files\LED Modes</Filter>
     </ClInclude>
     <ClInclude Include="RainbowWaveMode.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\LED Modes</Filter>
+    </ClInclude>
+    <ClInclude Include="GradientMode.h">
+      <Filter>Header Files\LED Modes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

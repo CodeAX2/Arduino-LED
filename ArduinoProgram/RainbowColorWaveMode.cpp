@@ -23,6 +23,12 @@ void RainbowColorWaveMode::handleData(byte data) {
 		break;
 	case 3:
 		rainbowWaveLength += 256 * data;
+		break;
+	case 4:
+		sat = data;
+		break;
+	case 5:
+		val = data;
 		doneReadingData = true;
 		msSinceRainbowWaveStart = 0;
 		break;
@@ -42,7 +48,7 @@ void RainbowColorWaveMode::loop() {
 		int rainR = 0, rainG = 0, rainB = 0;
 		float hue = (i % rainbowWaveLength) / (float)(rainbowWaveLength);
 		hue += ((float)msSinceRainbowWaveStart / rainbowWaveMSDelay) * huePerLED;
-		Utils::HSVtoRGB(hue, 1, 1, rainR, rainG, rainB);
+		Utils::HSVtoRGB(hue, (float)sat / 255.0, (float)val / 255.0, rainR, rainG, rainB);
 
 		int rChannel, gChannel, bChannel;
 		Handler::getRGBChannels(&rChannel, &gChannel, &bChannel);
